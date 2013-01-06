@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" is_instance="false" isQuest="true" questStopStepID="10" patrolrange="10" KOSBlue="false" KOSYellow="false" KOSPurple="false" Look_x0020_For_x0020_Dungeon="true" Next_x0020_Closest_x0020_WP="false" Distance_x0020_From_x0020_Previous_x0020_WP="0" ExitASAP="true" RelogWhenDD="false" KOSTS="false">
+  <Description />
+  <Name />
+  <NormalWayPoints />
+  <BlockPoints />
+  <enemyLevelRestriction lower_bound="0" upper_bound="0" />
+  <branchInfo type="Per Instance" followingFile="4-Clear_Keeps_Depths_Level_2_and_3.xml" followingFile2="">
+    <bottingDuration>0</bottingDuration>
+    <charBottingLevel lower_bound="0" upper_bound="0" />
+    <taskList />
+    <skillLevelRestriction Skill="" upper_bound="0" />
+  </branchInfo>
+  <LootContainer>false</LootContainer>
+  <instance openDoor="false" useHearth="false">
+    <entrance facing="0">
+      <loc x="0" y="0" z="0" type="0" />
+    </entrance>
+    <exit facing="0">
+      <loc x="0" y="0" z="0" type="0" />
+    </exit>
+    <runningType />
+    <range>0</range>
+    <pulling_number>0</pulling_number>
+  </instance>
+</Profile>
