@@ -76,20 +76,20 @@ namespace Astronaut.Scripts.Monk
 		static int BlindingFlashTargetsNearby = 10;	// The number of targets that has to be within BlindingFlashDistance before casting Blinding Flash
 		// Cyclone Strike OPTIONS
 		static int CycloneStrikeDistance = 30;	// Set this to the distance the targets must be within before casting Cyclone Strike (20 for all the runes aside from Implosion, if you are using the Imposion Rune set it to 30)
-		static int CycloneStrikeTargetsNearby = 3;	// Set this to the number of targets that must be within CycloneStrikeDistance before casting Cyclone Strike
-		static int CycloneStrikeSpiritCost = 80;	// Set the amount of sprit required before casting Cyclone Strike
+		static int CycloneStrikeTargetsNearby = 2;	// Set this to the number of targets that must be within CycloneStrikeDistance before casting Cyclone Strike
+		static int CycloneStrikeSpiritCost = 50;	// Set the amount of sprit required before casting Cyclone Strike
 		// Fists of Thunder OPTIONS
 		static int FistsofThunderDistance = 30;	// 10 = Melee Range | 30 = Thunder Clap Rune Range
 		// Wave of Light OPTIONS
-		static int WaveofLightDistance = 30;	// Set this to the distance that the mobs need to be within to cast Wave of Light					
-		static int WaveofLightNumberofMobs = 5;	// Set this to the number of mobs that has to be within the WaveofLightDistance before casting Wave of Light
+		static int WaveofLightDistance = 40;	// Set this to the distance that the mobs need to be within to cast Wave of Light					
+		static int WaveofLightNumberofMobs = 2;	// Set this to the number of mobs that has to be within the WaveofLightDistance before casting Wave of Light
 		// Focus target OPTIONS
 		static bool FocusTreasureGoblin = true;		// True = focus attacking Treasure Goblin until dead
 		static bool FocusMobSummoner = true;		// True = focus attacking any mob summoners until dead
 		// Avoid AOE OPTIONS
 		static bool AvoidAoE = true;            // try to avoid AoE (desecrate and middle of arcane beams)
 		static bool DashoutofAOE = true;		// Use Dashing Strike to escape the AOE
-		static int  AoESleepTime = 750;         // time in ms to delay when moving to avoid AoE
+		static int  AoESleepTime = 2000;         // time in ms to delay when moving to avoid AoE
 		// Misc Settings (Avoid AOE | Focus Pack Leader | Regular and Elite Scan Distances)
         static int RegularMobScanDistance = 40;    // attack radius for regular mobs (maximum 100 or about two screens)
         static int EliteMobScanDistance = 40;     // attack radius for elite mobs (maximum 100 or about two screens)
@@ -172,13 +172,16 @@ namespace Astronaut.Scripts.Monk
                     {
                         var dTargetInfo = D3Control.getDangourousTargetInfo();
                         safeSpot = D3Control.getSafePoint(dTargetInfo);
-                    }					
+                    }
 					// Sweeping Wind up
-                    if (D3Control.canCast("Sweeping Wind") && D3Control.isMovingWorking() && ((D3Control.HasBuff("Sweeping Wind") && SweepingWindTimer.IsReady) || !D3Control.HasBuff("Sweeping Wind")))
+                    if ((D3Control.canCast("Sweeping Wind") && D3Control.isMovingWorking()) && ((D3Control.HasBuff("Sweeping Wind") && SweepingWindTimer.IsReady) || !D3Control.HasBuff("Sweeping Wind")))
                     {
 						if (CastMonkSpell("Sweeping Wind", D3Control.Player.Location))
 							SweepingWindTimer.Reset();
-                    }			
+                    }
+					// Check if we need to use a potion
+					if (D3Control.Player.HpPct < hpPct_UsePotion)
+						D3Control.usePotion();
                     Thread.Sleep(1000);
                 }
             }
@@ -230,7 +233,6 @@ namespace Astronaut.Scripts.Monk
 			{
                 if (D3Control.Player.DistanceTo(loc) >= 8 || D3Control.Player.DistanceTo(loc) <= 2 || SpellID == "Dashing Strike" || SpellID == "Tempest Rush")
                 {
-					D3Control.output(SpellID);
                     return CastMonkDirectionSpell(SpellID, loc);
                 }
                 return D3Control.CastLocationSpell(SpellID, loc, true);
@@ -345,28 +347,22 @@ namespace Astronaut.Scripts.Monk
 			// If we are not in combat, break out of DoExecute
             if (!D3Control.Player.isInCombat)
 			{
-				if (outputMode == 2)
-				{
+				//if (outputMode == 2)
 					D3Control.output("We are not in combat anymore, leaving combat mode");
-				}
 				return;
 			}
 			// If we are not in game, break out of DoExecute
             if (!D3Control.IsInGame())
 			{
 				if (outputMode == 2)
-				{
 					D3Control.output("We are no longer in game, leaving combat mode");
-				}
 				return;
 			}
 			// If we are dead, break out of DoExecute
             if (D3Control.Player.IsDead)
 			{
 				if (outputMode == 2)
-				{
 					D3Control.output("We had died, leaving combat mode.");
-				}
 				return;
 			}
             D3Unit originalTarget, u;
@@ -376,7 +372,7 @@ namespace Astronaut.Scripts.Monk
             if (!pickTarget())
             {
                 u = originalTarget;
-				if (outputMode == 2)
+				//if (outputMode == 2)
 					D3Control.output("DoEx Orig ID: " + u.ID + " HP: " + (int)u.Hp + " Dist: " + (int)u.DistanceFromPlayer + " ML: " + u.MLevel);
                 D3Control.TargetManager.SetAttackTarget(originalTarget);
             }
@@ -390,9 +386,7 @@ namespace Astronaut.Scripts.Monk
                 if (combatThresholdTimer.IsReady)
 				{
 					if (outputMode == 2)
-					{
 						D3Control.output("Combat Timer Expired!");
-					}
 					break;
 				}
 				// Update dungeon info
@@ -402,6 +396,21 @@ namespace Astronaut.Scripts.Monk
 				{
 					D3Control.checkLoots();
 				}
+					// Keep Breath of Heaven up or use it if need be
+					if (D3Control.canCast("Breath of Heaven") && ((isUsingBlazingWrath && BreathofHeavenTimer.IsReady) || D3Control.Player.HpPct < hpPct_BreathofHeaven)) 
+					{
+						if (CastMonkSpell("Breath of Heaven", D3Control.Player.Location))
+						{
+							BreathofHeavenTimer.Reset();
+							Thread.Sleep(skillInterval);
+						}
+					}
+					// Serenity
+					if (D3Control.canCast("Serenity") && (D3Control.Player.HpPct < hpPct_Serenity || D3Control.Player.isBeingCCed() || (D3Control.curTarget.IsElite && useSerenityOnElites && D3Control.curTarget.DistanceFromPlayer < meleeRange)))
+					{
+						CastMonkSpell("Serenity", D3Control.Player.Location);
+						Thread.Sleep(skillInterval);
+					}
 				//
 				if (outputMode == 2)
 					D3Control.output("Globe Check");
@@ -558,50 +567,29 @@ namespace Astronaut.Scripts.Monk
 				pickTarget();
 				return;
 			}
-			// Keep Breath of Heaven up or use it if need be
-			if (D3Control.canCast("Breath of Heaven") && ((isUsingBlazingWrath && BreathofHeavenTimer.IsReady) || D3Control.Player.HpPct < hpPct_BreathofHeaven)) 
-			{
-				if (CastMonkSpell("Breath of Heaven", D3Control.Player.Location))
-				{
-					BreathofHeavenTimer.Reset();
-					Thread.Sleep(skillInterval);
-				}
-			}
-			// Serenity
-			if (D3Control.canCast("Serenity") && (D3Control.Player.HpPct < hpPct_Serenity || D3Control.Player.isBeingCCed() || (D3Control.curTarget.IsElite && useSerenityOnElites && D3Control.curTarget.DistanceFromPlayer < meleeRange)))
-			{
-				CastMonkSpell("Serenity", D3Control.Player.Location);
-				Thread.Sleep(skillInterval);
-			}
 			/*
 				Mantras
 			*/
 			if (D3Control.canCast("Mantra of Evasion"))
 			{
-				if (!D3Control.HasBuff("Mantra of Evasion") || (D3Control.curTarget.IsElite && MantraTimer.IsReady && D3Control.HasBuff("Sweeping Wind")) || (D3Control.Player.HpPct < hpPct_Mantra && D3Control.HasBuff("Sweeping Wind")))
+				if (!D3Control.HasBuff("Mantra of Evasion") || (CastMantraEvery3Seconds && MantraTimer.IsReady && D3Control.HasBuff("Sweeping Wind")) || (D3Control.curTarget.IsElite && MantraTimer.IsReady && D3Control.HasBuff("Sweeping Wind")) || (D3Control.Player.HpPct < hpPct_Mantra && D3Control.HasBuff("Sweeping Wind")))
 				{
 					if (CastMonkSpell("Mantra of Evasion", D3Control.Player.Location))
 						MantraTimer.Reset();
 					Thread.Sleep(skillInterval);
 				}
 			} 
-			else if (D3Control.canCast("Mantra of Retribution"))
+			else if (D3Control.canCast("Mantra of Retribution") && !D3Control.HasBuff("Mantra of Retribution"))
 			{
-				if (!D3Control.HasBuff("Mantra of Retribution") || (target.IsElite && MantraTimer.IsReady && D3Control.HasBuff("Sweeping Wind")) || (D3Control.Player.HpPct < hpPct_Mantra && D3Control.HasBuff("Sweeping Wind")))
-				{
-					if (CastMonkSpell("Mantra of Retribution", D3Control.Player.Location))
-						MantraTimer.Reset();
-					Thread.Sleep(skillInterval);
-				}
+				if (CastMonkSpell("Mantra of Retribution", D3Control.Player.Location))
+					MantraTimer.Reset();
+				Thread.Sleep(skillInterval);
 			}
-			else if (D3Control.canCast("Mantra of Healing"))
+			else if (D3Control.canCast("Mantra of Healing") && !D3Control.HasBuff("Mantra of Healing"))
 			{
-				if (!D3Control.HasBuff("Mantra of Healing") || (target.IsElite && MantraTimer.IsReady && D3Control.HasBuff("Sweeping Wind")) || (D3Control.Player.HpPct < hpPct_Mantra && D3Control.HasBuff("Sweeping Wind")))
-				{
-					if (CastMonkSpell("Mantra of Healing", D3Control.Player.Location))
-						MantraTimer.Reset();
-					Thread.Sleep(skillInterval);
-				}
+				if (CastMonkSpell("Mantra of Healing", D3Control.Player.Location))
+					MantraTimer.Reset();
+				Thread.Sleep(skillInterval);
 			}
 			else if (D3Control.canCast("Mantra of Conviction") && ((MantraTimer.IsReady && D3Control.HasBuff("Sweeping Wind")) || (!D3Control.HasBuff("Mantra of Conviction"))))
 			{
@@ -696,7 +684,7 @@ namespace Astronaut.Scripts.Monk
 			// Set our target variable to the current target set by the Target Manager.
             D3Unit target = D3Control.curTarget;
 			// Tell the user that we are attacking a target if the output mode is set to 1 or higher
-			if (outputMode == 2)
+			//if (outputMode == 2)
 				D3Control.output("Attacking Target "+target.ID+" HP:"+(int)target.Hp+" Dist:"+(int)target.DistanceFromPlayer);
 			// Use AOE Spells
 			if (D3Control.TargetManager.GetAroundEnemy(CycloneStrikeDistance).Count >= CycloneStrikeTargetsNearby && D3Control.Player.Spirit > CycloneStrikeSpiritCost)
@@ -744,6 +732,15 @@ namespace Astronaut.Scripts.Monk
 					}
 				}
 			}
+			// WAVE OF LIGHT
+			var mobsWaveofLight = D3Control.TargetManager.GetAroundEnemy(WaveofLightDistance).Count;
+			if (mobsWaveofLight >= WaveofLightNumberofMobs)
+			{
+				if (CastMonkTargetSpell("Wave of Light", target))
+				{
+					Thread.Sleep(skillInterval);
+				}
+			}
 			/*
 				TEMPEST RUSH
 			*/
@@ -756,43 +753,12 @@ namespace Astronaut.Scripts.Monk
 					Thread.Sleep(skillInterval);
 				}
 			}
-			/*
-				DASHING STRIKE
-			*/
+			// DASHING STRIKE
 			if (D3Control.canCast("Dashing Strike") && target.DistanceFromPlayer > 0 && target.DistanceFromPlayer <= 40)
 			{
 				if (CastMonkTargetSpell("Dashing Strike", target))
 				{
 					Thread.Sleep(skillInterval);
-				}
-			}
-			/*
-				WAVE OF LIGHT
-			*/
-			var mobsWaveofLight = D3Control.TargetManager.GetAroundEnemy(WaveofLightDistance).Count;
-			if (mobsWaveofLight >= WaveofLightNumberofMobs)
-			{
-				if (CastMonkTargetSpell("Wave of Light", target))
-				{
-					Thread.Sleep(skillInterval);
-				}
-			}
-			/*
-				FISTS OF THUNDER
-			*/
-			//
-			if (target.DistanceFromPlayer <= FistsofThunderDistance && D3Control.canCast("Fists of Thunder"))
-			{
-				for (int j = 0; j < 3; j++)
-				{
-					if (!CastMonkTargetSpell("Fists of Thunder",target))
-					{
-						break;
-					}
-					else if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
-					{
-						break;
-					}
 				}
 			}
 			// Exploding Palm
@@ -812,15 +778,41 @@ namespace Astronaut.Scripts.Monk
 					Thread.Sleep(skillInterval);
 				}
 			}
+			/*
+				Spirit Regenerating Attacks
+			*/
+			// Fists of Thunder
+			if (target.DistanceFromPlayer <= FistsofThunderDistance && D3Control.canCast("Fists of Thunder"))
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					if (!CastMonkTargetSpell("Fists of Thunder",target))
+					{
+						break;
+					}
+					else if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
+					{
+						break;
+					}
+				}
+			}
+			// Crippling Wave
+			if (D3Control.canCast("Crippling Wave"))
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					if (!CastMonkTargetSpell("Crippling Wave",target))
+						break;
+					if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
+						break;
+				}
+			}
 			// Way of the Hundred Fists
 			for (int j = 0; j < 3; j++)
 			{
-				if (true)
-				{
-					if (!CastMonkTargetSpell("Way of the Hundred Fists", target))
-						break;
-				}
-				if (!D3Control.isObjectValid(target) || target.IsDead)
+				if (!CastMonkTargetSpell("Way of the Hundred Fists", target))
+					break;
+				if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
 					break;
 			}
 			// Deadly Reach
@@ -828,22 +820,18 @@ namespace Astronaut.Scripts.Monk
 			{
 				for (int j = 0; j < 3; j++)
 				{
-					if (true)
-					{
-						if (!CastMonkTargetSpell("Deadly Reach", target))
-							break;
-					}
-					if (!D3Control.isObjectValid(target) || target.IsDead)
+					if (!CastMonkTargetSpell("Deadly Reach", target))
+						break;
+					if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
 						break;
 				}
 			}
-			pickTarget();
 		}
         bool pickTarget()
         {
             int enemyCount = 0;
             bool found = false;
-            float closestEliteDistance = 50, closestMobDistance = 50;
+            float closestEliteDistance = 100, closestMobDistance = 100;
             D3Unit closestElite = null, closestMob = null, u;
 
             D3Control.TargetManager.ClearTarget();
@@ -853,27 +841,13 @@ namespace Astronaut.Scripts.Monk
             foreach (D3Unit mob in mobs)
             {
 				enemyCount++;
-				if (!mob.IsDead && D3Control.isObjectValid(mob) && !found) 
-				{
-                    if(!mob.IsElite && (mob.DistanceFromPlayer < closestMobDistance)) 
-                    {
-                        closestMobDistance = mob.DistanceFromPlayer;
-                        closestMob = mob;
-                    }
- 
-                    if (mob.IsElite && (mob.DistanceFromPlayer < closestEliteDistance)) 
-                    {
-                        closestEliteDistance = mob.DistanceFromPlayer;
-                        closestElite = mob;
-                    }
-				}
 				// Focus Treasure Seeker
 				if ((mob.ID == 5985 || mob.ID == 5984 || mob.ID == 5985 || mob.ID == 5987 || mob.ID == 5988) && FocusTreasureGoblin)
 				{
 					if (outputMode >= 1)
 						D3Control.output("Found Treasure Goblin (ID: " + mob.ID + " Dist: " + (int)mob.DistanceFromPlayer+")");
 					D3Control.TargetManager.SetAttackTarget(mob);
-					break;				
+					return true;				
 				}
 				// Focus Mob Summoner
 				if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100) && FocusMobSummoner)
@@ -881,17 +855,22 @@ namespace Astronaut.Scripts.Monk
 					if (outputMode >= 1)
 						D3Control.output("Found Mob Summoner ID: "+mob.ID+" Dist: "+(int)mob.DistanceFromPlayer+")");
 					D3Control.TargetManager.SetAttackTarget(mob);
-					break;
+					return true;
+				}
+				if (!mob.IsDead && D3Control.isObjectValid(mob) && !found) 
+				{
+                    if (mob.DistanceFromPlayer < closestMobDistance) 
+                    {
+                        closestMobDistance = mob.DistanceFromPlayer;
+                        closestMob = mob;
+                    }
 				}
             }
-            // kill all trash mobs within RegularMobScanDistance
-            if ((closestMobDistance <= RegularMobScanDistance) && (closestMob != null)) {
+            // kill closest mob
+            if (closestMob != null) {
                 D3Control.TargetManager.SetAttackTarget(closestMob);
-                found = true;
-            }
-            // kill all elites within EliteMobScanDistance
-            if ((closestEliteDistance <= EliteMobScanDistance) && (closestMob != null)) {
-                D3Control.TargetManager.SetAttackTarget(closestElite);
+				u = D3Control.curTarget; 
+				//D3Control.output("New Target ID: " + u.ID + " HP: " + (int)u.Hp + " Dist: " + (int)u.DistanceFromPlayer + " ML: " + u.MLevel);
                 found = true;
             }
 			//
@@ -902,12 +881,8 @@ namespace Astronaut.Scripts.Monk
 			//
             else
             {
-				if (outputMode == 2)
-				{
-					u = D3Control.curTarget;  
+				//if (outputMode == 2)
 					D3Control.output("# of Mobs: "+enemyCount+" Closest Mob/Elite: "+(int)closestMobDistance+"/"+(int)closestEliteDistance);
-					D3Control.output("New Target ID: " + u.ID + " HP: " + (int)u.Hp + " Dist: " + (int)u.DistanceFromPlayer + " ML: " + u.MLevel);
-				}
                 return true;
             }
         }
