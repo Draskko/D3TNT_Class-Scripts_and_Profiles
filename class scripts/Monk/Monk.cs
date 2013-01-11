@@ -86,10 +86,11 @@ namespace Astronaut.Scripts.Monk
 		// Focus target OPTIONS
 		static bool FocusTreasureGoblin = true;		// True = focus attacking Treasure Goblin until dead
 		static bool FocusMobSummoner = true;		// True = focus attacking any mob summoners until dead
+		static bool FocusFallenManiac = true;	// True = focus attacking the Fallen Maniac (exploding bastards) until dead 
 		// Avoid AOE OPTIONS
-		static bool AvoidAoE = true;            // try to avoid AoE (desecrate and middle of arcane beams)
+		static bool AvoidAoE = false;            // try to avoid AoE (desecrate and middle of arcane beams)
 		static bool DashoutofAOE = true;		// Use Dashing Strike to escape the AOE
-		static int  AoESleepTime = 2000;         // time in ms to delay when moving to avoid AoE
+		static int  AoESleepTime = 500;         // time in ms to delay when moving to avoid AoE
 		// Misc Settings (Avoid AOE | Focus Pack Leader | Regular and Elite Scan Distances)
         static int RegularMobScanDistance = 40;    // attack radius for regular mobs (maximum 100 or about two screens)
         static int EliteMobScanDistance = 40;     // attack radius for elite mobs (maximum 100 or about two screens)
@@ -112,6 +113,7 @@ namespace Astronaut.Scripts.Monk
 		*/
 		static CWSpellTimer BreathofHeavenTimer = new CWSpellTimer(45 * 1000);
 		public int fight_times = 12;		// Times to cast punches before checking for new targets
+		public int numofAttacks = 0;
         public static bool inited = false;	// Start with saying we have not loaded yet
 		public bool enemyFound = false;
 		public int meleeRange = 20;			// Set Melee Range (best not to change it)
@@ -172,12 +174,6 @@ namespace Astronaut.Scripts.Monk
                     {
                         var dTargetInfo = D3Control.getDangourousTargetInfo();
                         safeSpot = D3Control.getSafePoint(dTargetInfo);
-                    }
-					// Sweeping Wind up
-                    if ((D3Control.canCast("Sweeping Wind") && D3Control.isMovingWorking()) && ((D3Control.HasBuff("Sweeping Wind") && SweepingWindTimer.IsReady) || !D3Control.HasBuff("Sweeping Wind")))
-                    {
-						if (CastMonkSpell("Sweeping Wind", D3Control.Player.Location))
-							SweepingWindTimer.Reset();
                     }
 					// Check if we need to use a potion
 					if (D3Control.Player.HpPct < hpPct_UsePotion)
@@ -477,12 +473,17 @@ namespace Astronaut.Scripts.Monk
 						}
 					}
 				}
+				// Sweeping Wind up check
+				if ((D3Control.canCast("Sweeping Wind") && D3Control.isMovingWorking()) && ((D3Control.HasBuff("Sweeping Wind") && SweepingWindTimer.IsReady) || !D3Control.HasBuff("Sweeping Wind")))
+				{
+					if (CastMonkSpell("Sweeping Wind", D3Control.Player.Location))
+						SweepingWindTimer.Reset();
+                }
 				// Pick target and attack the closest target if there is one to attack
 				if (outputMode == 2)
 					D3Control.output("Target Check");
 				if (D3Control.isObjectValid(D3Control.curTarget) && !D3Control.curTarget.IsDead)
 				{
-					enemyFound = true;
 					// make sure this function call is added if you have a while loop in DoExecute to handle the target selection.
 					// it handles some boss fights, where you have to kill the minions first.
 					D3Control.TargetManager.handleSpecialFight();
@@ -547,6 +548,13 @@ namespace Astronaut.Scripts.Monk
 		
         void doAttackSequence(D3Player entity)
         {
+			numofAttacks = numofAttacks+1;
+			if (numofAttacks >= fight_times)
+			{
+				pickTarget();
+				numofAttacks = 0;
+			}
+			D3Control.output("Number of Attacks Preformed: "+(int)numofAttacks);
 			if (enemyFound && outputMode == 2)
 				D3Control.output("enemyFound");
 			// Set our target variable to the current target set by the Target Manager.
@@ -845,7 +853,7 @@ namespace Astronaut.Scripts.Monk
 				if ((mob.ID == 5985 || mob.ID == 5984 || mob.ID == 5985 || mob.ID == 5987 || mob.ID == 5988) && FocusTreasureGoblin)
 				{
 					if (outputMode >= 1)
-						D3Control.output("Found Treasure Goblin (ID: " + mob.ID + " Dist: " + (int)mob.DistanceFromPlayer+")");
+						D3Control.output("Chasing Down Treasure Goblin.. Dist:" + (int)mob.DistanceFromPlayer);
 					D3Control.TargetManager.SetAttackTarget(mob);
 					return true;				
 				}
@@ -853,7 +861,15 @@ namespace Astronaut.Scripts.Monk
 				if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100) && FocusMobSummoner)
 				{
 					if (outputMode >= 1)
-						D3Control.output("Found Mob Summoner ID: "+mob.ID+" Dist: "+(int)mob.DistanceFromPlayer+")");
+						D3Control.output("Chasing Down Mob Summoner.. Dist: "+(int)mob.DistanceFromPlayer);
+					D3Control.TargetManager.SetAttackTarget(mob);
+					return true;
+				}
+				// Focus Fallen Maniac
+				if (mob.ID == 4095 && FocusFallenManiac)
+				{
+					if (outputMode >= 1)
+						D3Control.output("Chasing Down Fallen Maniac.. Dist: "+(int)mob.DistanceFromPlayer);
 					D3Control.TargetManager.SetAttackTarget(mob);
 					return true;
 				}
