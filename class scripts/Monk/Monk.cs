@@ -86,6 +86,7 @@ namespace Astronaut.Scripts.Monk
 		// Focus target OPTIONS
 		static bool FocusTreasureGoblin = true;		// True = focus attacking Treasure Goblin until dead
 		static bool FocusMobSummoner = true;		// True = focus attacking any mob summoners until dead
+		static bool FocusBloodClanSpearman = true; // True = focus the Blood Clan Spearman until dead
 		static bool FocusFallenManiac = true;	// True = focus attacking the Fallen Maniac (exploding bastards) until dead 
 		// Avoid AOE OPTIONS
 		static bool AvoidAoE = false;            // try to avoid AoE (desecrate and middle of arcane beams)
@@ -640,9 +641,55 @@ namespace Astronaut.Scripts.Monk
             {
 				if (outputMode >= 1)
 				{
-					D3Control.output("Cannot move forward, changing target");
+					D3Control.output("Cannot move forward, attacking in front of myself to clear a path.");
 				}
-				pickTarget();
+				Vector3D tLoc = D3Control.curTarget.Location;
+				Vector3D location = D3Control.getTargetSideSpot(tLoc, 0, 0);
+				// Fists of Thunder
+				if (target.DistanceFromPlayer <= FistsofThunderDistance && D3Control.canCast("Fists of Thunder"))
+				{
+					for (int j = 0; j < 3; j++)
+					{
+						if (!D3Control.CastLocationSpell("Fists of Thunder",location,true))
+						{
+							break;
+						}
+						else if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
+						{
+							break;
+						}
+					}
+				}
+				// Crippling Wave
+				if (D3Control.canCast("Crippling Wave"))
+				{
+					for (int j = 0; j < 3; j++)
+					{
+						if (!D3Control.CastLocationSpell("Crippling Wave",location,true))
+							break;
+						if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
+							break;
+					}
+				}
+				// Way of the Hundred Fists
+				for (int j = 0; j < 3; j++)
+				{
+					if (!D3Control.CastLocationSpell("Way of the Hundred Fists",location,true))
+						break;
+					if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
+						break;
+				}
+				// Deadly Reach
+				if (target.DistanceFromPlayer <= meleeRange && D3Control.canCast("Deadly Reach"))
+				{
+					for (int j = 0; j < 3; j++)
+					{
+						if (!D3Control.CastLocationSpell("Deadly Reach",location,true))
+							break;
+						if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
+							break;
+					}
+				}
 				return;
             }
 			// nothing in range or no LOS to target so lets move closer
@@ -858,10 +905,18 @@ namespace Astronaut.Scripts.Monk
 					return true;				
 				}
 				// Focus Mob Summoner
-				if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100) && FocusMobSummoner)
+				if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100 || mob.ID == 365) && FocusMobSummoner)
 				{
 					if (outputMode >= 1)
 						D3Control.output("Chasing Down Mob Summoner.. Dist: "+(int)mob.DistanceFromPlayer);
+					D3Control.TargetManager.SetAttackTarget(mob);
+					return true;
+				}
+				// Focus Blood Clan Spearman
+				if (mob.ID == 4299 && FocusBloodClanSpearman)
+				{
+					if (outputMode >= 1)
+						D3Control.output("Chasing Down Blood Clan Spearman.. Dist: "+(int)mob.DistanceFromPlayer);
 					D3Control.TargetManager.SetAttackTarget(mob);
 					return true;
 				}
