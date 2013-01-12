@@ -176,6 +176,12 @@ namespace Astronaut.Scripts.Monk
                         var dTargetInfo = D3Control.getDangourousTargetInfo();
                         safeSpot = D3Control.getSafePoint(dTargetInfo);
                     }
+					// Sweeping Wind up check
+					if ((D3Control.canCast("Sweeping Wind") && D3Control.Player.isMovingForward) && ((D3Control.HasBuff("Sweeping Wind") && SweepingWindTimer.IsReady) || !D3Control.HasBuff("Sweeping Wind")))
+					{
+						if (CastMonkSpell("Sweeping Wind", D3Control.Player.Location))
+							SweepingWindTimer.Reset();
+					}
 					// Check if we need to use a potion
 					if (D3Control.Player.HpPct < hpPct_UsePotion)
 						D3Control.usePotion();
@@ -344,21 +350,21 @@ namespace Astronaut.Scripts.Monk
 			// If we are not in combat, break out of DoExecute
             if (!D3Control.Player.isInCombat)
 			{
-				//if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("We are not in combat anymore, leaving combat mode");
 				return;
 			}
 			// If we are not in game, break out of DoExecute
             if (!D3Control.IsInGame())
 			{
-				if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("We are no longer in game, leaving combat mode");
 				return;
 			}
 			// If we are dead, break out of DoExecute
             if (D3Control.Player.IsDead)
 			{
-				if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("We had died, leaving combat mode.");
 				return;
 			}
@@ -369,7 +375,7 @@ namespace Astronaut.Scripts.Monk
             if (!pickTarget())
             {
                 u = originalTarget;
-				//if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("DoEx Orig ID: " + u.ID + " HP: " + (int)u.Hp + " Dist: " + (int)u.DistanceFromPlayer + " ML: " + u.MLevel);
                 D3Control.TargetManager.SetAttackTarget(originalTarget);
             }
@@ -377,12 +383,12 @@ namespace Astronaut.Scripts.Monk
             while (true)
             {
 				Thread.Sleep(100);
-				if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("DoExe");
 				// If the combat timer expires, break out of DoExecute
                 if (combatThresholdTimer.IsReady)
 				{
-					if (outputMode == 2)
+					if (outputMode >= 2)
 						D3Control.output("Combat Timer Expired!");
 					break;
 				}
@@ -409,7 +415,7 @@ namespace Astronaut.Scripts.Monk
 						Thread.Sleep(skillInterval);
 					}
 				//
-				if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("Globe Check");
 				// Grab a health globe if we need to and one exists
 				if (D3Control.Player.HpPct <= hpPct_HealthGlobe)
@@ -446,12 +452,12 @@ namespace Astronaut.Scripts.Monk
 						}
 					}
 				}
-				if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("Potion Check");
 				// Check if we need to use a potion
 				if (D3Control.Player.HpPct < hpPct_UsePotion)
 					D3Control.usePotion();
-				if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("Ally Check");
 				// Check if we need to re-cast buffs
 				if (checkMysticAllyTimer.IsReady)
@@ -474,14 +480,8 @@ namespace Astronaut.Scripts.Monk
 						}
 					}
 				}
-				// Sweeping Wind up check
-				if ((D3Control.canCast("Sweeping Wind") && D3Control.isMovingWorking()) && ((D3Control.HasBuff("Sweeping Wind") && SweepingWindTimer.IsReady) || !D3Control.HasBuff("Sweeping Wind")))
-				{
-					if (CastMonkSpell("Sweeping Wind", D3Control.Player.Location))
-						SweepingWindTimer.Reset();
-                }
 				// Pick target and attack the closest target if there is one to attack
-				if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("Target Check");
 				if (D3Control.isObjectValid(D3Control.curTarget) && !D3Control.curTarget.IsDead)
 				{
@@ -635,7 +635,7 @@ namespace Astronaut.Scripts.Monk
 				}
 			}
 			// Check if we got stuck
-			if (outputMode == 2)
+			if (outputMode >= 2)
 				D3Control.output("Is Moving Forward Check");
             if (D3Control.isMovingWorking() && !D3Control.Player.isMovingForward)
             {
@@ -693,18 +693,18 @@ namespace Astronaut.Scripts.Monk
 				return;
             }
 			// nothing in range or no LOS to target so lets move closer
-			if (outputMode == 2)
+			if (outputMode >= 2)
 				D3Control.output("Is Within LOS and Close Enough To Target Check");           
             if (!isMeleeRange(target) || D3Control.LOS(target.Location))
             {
 				if (D3Control.LOS(target.Location))
 				{
-					if (outputMode == 2)
+					if (outputMode >= 2)
 						D3Control.output("NOT IN LOS");
 				}
 				else
 				{
-					if (outputMode == 2)
+					if (outputMode >= 2)
 						D3Control.output("NOT CLOSE ENOUGH");
 				}
 				float d = D3Control.curTarget.DistanceFromPlayer;
@@ -739,7 +739,7 @@ namespace Astronaut.Scripts.Monk
 			// Set our target variable to the current target set by the Target Manager.
             D3Unit target = D3Control.curTarget;
 			// Tell the user that we are attacking a target if the output mode is set to 1 or higher
-			//if (outputMode == 2)
+			if (outputMode >= 2)
 				D3Control.output("Attacking Target "+target.ID+" HP:"+(int)target.Hp+" Dist:"+(int)target.DistanceFromPlayer);
 			// Use AOE Spells
 			if (D3Control.TargetManager.GetAroundEnemy(CycloneStrikeDistance).Count >= CycloneStrikeTargetsNearby && D3Control.Player.Spirit > CycloneStrikeSpiritCost)
@@ -751,7 +751,7 @@ namespace Astronaut.Scripts.Monk
 			}
 			if (D3Control.NearbyEnemyCount(35) > 1 || D3Control.curTarget.IsElite)
 			{
-				if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("AOE SPELLS");
 				// Blinding Flash
 				var mobs = D3Control.TargetManager.GetAroundEnemy(BlindingFlashDistance).Count;
@@ -905,7 +905,7 @@ namespace Astronaut.Scripts.Monk
 					return true;				
 				}
 				// Focus Mob Summoner
-				if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100 || mob.ID == 365) && FocusMobSummoner)
+				if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100 || mob.ID == 365) && FocusMobSummoner && mob.DistanceFromPlayer <= 60)
 				{
 					if (outputMode >= 1)
 						D3Control.output("Chasing Down Mob Summoner.. Dist: "+(int)mob.DistanceFromPlayer);
@@ -921,7 +921,7 @@ namespace Astronaut.Scripts.Monk
 					return true;
 				}
 				// Focus Fallen Maniac
-				if (mob.ID == 4095 && FocusFallenManiac)
+				if (mob.ID == 4095 && FocusFallenManiac && mob.DistanceFromPlayer <= 60)
 				{
 					if (outputMode >= 1)
 						D3Control.output("Chasing Down Fallen Maniac.. Dist: "+(int)mob.DistanceFromPlayer);
@@ -941,7 +941,8 @@ namespace Astronaut.Scripts.Monk
             if (closestMob != null) {
                 D3Control.TargetManager.SetAttackTarget(closestMob);
 				u = D3Control.curTarget; 
-				//D3Control.output("New Target ID: " + u.ID + " HP: " + (int)u.Hp + " Dist: " + (int)u.DistanceFromPlayer + " ML: " + u.MLevel);
+				if (outputMode >= 2)
+					D3Control.output("New Target ID: " + u.ID + " HP: " + (int)u.Hp + " Dist: " + (int)u.DistanceFromPlayer + " ML: " + u.MLevel);
                 found = true;
             }
 			//
@@ -952,7 +953,7 @@ namespace Astronaut.Scripts.Monk
 			//
             else
             {
-				//if (outputMode == 2)
+				if (outputMode >= 2)
 					D3Control.output("# of Mobs: "+enemyCount+" Closest Mob/Elite: "+(int)closestMobDistance+"/"+(int)closestEliteDistance);
                 return true;
             }
