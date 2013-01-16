@@ -89,6 +89,7 @@ namespace Astronaut.Scripts.Monk
 		static bool FocusMobSummoner = true;		// True = focus attacking any mob summoners until dead
 		static bool FocusBloodClanSpearman = true; // True = focus the Blood Clan Spearman until dead
 		static bool FocusFallenManiac = true;	// True = focus attacking the Fallen Maniac (exploding bastards) until dead 
+		static bool FocusHearldofPestilence = true;	// True == focus attacking the Hearald of Pestilence until dead (poison underground guys)
 		// Avoid AOE OPTIONS
 		static bool AvoidAoE = false;            // try to avoid AoE (desecrate and middle of arcane beams)
 		static bool DashoutofAOE = true;		// Use Dashing Strike to escape the AOE
@@ -544,13 +545,6 @@ namespace Astronaut.Scripts.Monk
 		
         void doAttackSequence(D3Player entity)
         {
-			numofAttacks = numofAttacks+1;
-			if (numofAttacks >= fight_times)
-			{
-				pickTarget();
-				numofAttacks = 0;
-			}
-			D3Control.output("Number of Attacks Preformed: "+(int)numofAttacks);
 			if (enemyFound && outputMode == 2)
 				D3Control.output("enemyFound");
 			// Set our target variable to the current target set by the Target Manager.
@@ -629,6 +623,32 @@ namespace Astronaut.Scripts.Monk
 					Thread.Sleep(skillInterval);
 				}
 			}
+			// nothing in range or no LOS to target so lets move closer
+			if (outputMode >= 2)
+				D3Control.output("Is Within LOS and Close Enough To Target Check");           
+            if (!isMeleeRange(target) || D3Control.pureLOS(target.Location))
+            {
+				if (D3Control.LOS(target.Location))
+				{
+					if (outputMode >= 2)
+						D3Control.output("NOT IN LOS");
+				}
+				else
+				{
+					if (outputMode >= 2)
+						D3Control.output("NOT CLOSE ENOUGH");
+				}
+				float d = D3Control.curTarget.DistanceFromPlayer;
+				if (d > meleeRange)
+				{
+					D3Control.MoveTo(target, 10);
+				}
+				else
+				{
+					D3Control.MoveTo(target, d-1);
+				}
+                return;
+            }
 			// Check if we got stuck
 			if (outputMode >= 2)
 				D3Control.output("Is Moving Forward Check");
@@ -687,32 +707,6 @@ namespace Astronaut.Scripts.Monk
 				}
 				return;
             }
-			// nothing in range or no LOS to target so lets move closer
-			if (outputMode >= 2)
-				D3Control.output("Is Within LOS and Close Enough To Target Check");           
-            if (!isMeleeRange(target) || D3Control.LOS(target.Location))
-            {
-				if (D3Control.LOS(target.Location))
-				{
-					if (outputMode >= 2)
-						D3Control.output("NOT IN LOS");
-				}
-				else
-				{
-					if (outputMode >= 2)
-						D3Control.output("NOT CLOSE ENOUGH");
-				}
-				float d = D3Control.curTarget.DistanceFromPlayer;
-				if (d > meleeRange)
-				{
-					D3Control.MoveTo(target, 10);
-				}
-				else
-				{
-					D3Control.MoveTo(target, d-1);
-				}
-                return;
-            }
 			// If we are close enough to attack or if we are not moving when the moving thread is active and the target is still alive ATTACK!
             if (!D3Control.LOS(target.Location) || (target.ID == 218947 && target.DistanceFromPlayer <= meleeRange))
             {
@@ -731,10 +725,19 @@ namespace Astronaut.Scripts.Monk
         }
 		void doAttacks()
 		{
+			// If we are above the set max number of attacks preformed, find closest target again and reset counter
+			if (numofAttacks >= fight_times)
+			{
+				pickTarget();
+				numofAttacks = 0;
+			}
+			// Display number of attacks preformed
+			if (outputMode >= 2)
+				D3Control.output("Number of Attacks Preformed: "+(int)numofAttacks);
 			// Set our target variable to the current target set by the Target Manager.
             D3Unit target = D3Control.curTarget;
 			// Tell the user that we are attacking a target if the output mode is set to 1 or higher
-			if (outputMode >= 2)
+			if (outputMode >= 1)
 				D3Control.output("Attacking Target "+target.ID+" HP:"+(int)target.Hp+" Dist:"+(int)target.DistanceFromPlayer);
 			// Use AOE Spells
 			if (D3Control.TargetManager.GetAroundEnemy(CycloneStrikeDistance).Count >= CycloneStrikeTargetsNearby && D3Control.Player.Spirit > CycloneStrikeSpiritCost)
@@ -742,6 +745,7 @@ namespace Astronaut.Scripts.Monk
 				if (CastMonkSpell("Cyclone Strike",D3Control.Player.Location))
 				{
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 				}
 			}
 			if (D3Control.NearbyEnemyCount(35) > 1 || D3Control.curTarget.IsElite)
@@ -771,6 +775,7 @@ namespace Astronaut.Scripts.Monk
 					if (CastMonkTargetSpell("Lashing Tail Kick", target))
 					{
 						Thread.Sleep(skillInterval);
+						numofAttacks = numofAttacks+1;
 					}
 				}
 				//
@@ -779,6 +784,7 @@ namespace Astronaut.Scripts.Monk
 					if (CastMonkSpell("Seven-Sided Strike", D3Control.Player.Location))
 					{
 						Thread.Sleep(skillInterval);
+						numofAttacks = numofAttacks+1;
 					}
 				}
 			}
@@ -789,6 +795,7 @@ namespace Astronaut.Scripts.Monk
 				if (CastMonkTargetSpell("Wave of Light", target))
 				{
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 				}
 			}
 			/*
@@ -801,6 +808,7 @@ namespace Astronaut.Scripts.Monk
 				if (D3Control.CastLocationSpell("Tempest Rush", location, true))
 				{
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 				}
 			}
 			// DASHING STRIKE
@@ -809,6 +817,7 @@ namespace Astronaut.Scripts.Monk
 				if (CastMonkTargetSpell("Dashing Strike", target))
 				{
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 				}
 			}
 			// Exploding Palm
@@ -818,14 +827,7 @@ namespace Astronaut.Scripts.Monk
 				{
 					ExplodingPalmTimer.Reset();
 					Thread.Sleep(skillInterval);
-				}
-			}
-			// Seven-Sided Strike
-			if (target.IsElite && target.MLevel != 3 && target.DistanceFromPlayer <= meleeRange)
-			{
-				if (CastMonkSpell("Seven-Sided Strike", D3Control.Player.Location))
-				{
-					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 				}
 			}
 			/*
@@ -844,6 +846,7 @@ namespace Astronaut.Scripts.Monk
 					{
 						break;
 					}
+					numofAttacks = numofAttacks+1;
 				}
 			}
 			// Crippling Wave
@@ -855,6 +858,7 @@ namespace Astronaut.Scripts.Monk
 						break;
 					if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
 						break;
+					numofAttacks = numofAttacks+1;
 				}
 			}
 			// Way of the Hundred Fists
@@ -864,6 +868,7 @@ namespace Astronaut.Scripts.Monk
 					break;
 				if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
 					break;
+				numofAttacks = numofAttacks+1;
 			}
 			// Deadly Reach
 			if (target.DistanceFromPlayer <= meleeRange && D3Control.canCast("Deadly Reach"))
@@ -874,6 +879,7 @@ namespace Astronaut.Scripts.Monk
 						break;
 					if (target == null || !D3Control.isObjectValid(target) || target.IsDead || target.Hp <= 0 || target.Hp == null)
 						break;
+					numofAttacks = numofAttacks+1;
 				}
 			}
 		}
@@ -900,7 +906,7 @@ namespace Astronaut.Scripts.Monk
 					return true;				
 				}
 				// Focus Mob Summoner
-				if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100 || mob.ID == 365) && FocusMobSummoner && mob.DistanceFromPlayer <= 60)
+				if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100 || mob.ID == 365 || mob.ID == 4099) && FocusMobSummoner && mob.DistanceFromPlayer <= 60)
 				{
 					if (outputMode >= 1)
 						D3Control.output("Chasing Down Mob Summoner.. Dist: "+(int)mob.DistanceFromPlayer);
@@ -908,7 +914,7 @@ namespace Astronaut.Scripts.Monk
 					return true;
 				}
 				// Focus Blood Clan Spearman
-				if (mob.ID == 4299 && FocusBloodClanSpearman)
+				if (mob.ID == 4299 && FocusBloodClanSpearman && mob.DistanceFromPlayer <= 60)
 				{
 					if (outputMode >= 1)
 						D3Control.output("Chasing Down Blood Clan Spearman.. Dist: "+(int)mob.DistanceFromPlayer);
@@ -920,6 +926,14 @@ namespace Astronaut.Scripts.Monk
 				{
 					if (outputMode >= 1)
 						D3Control.output("Chasing Down Fallen Maniac.. Dist: "+(int)mob.DistanceFromPlayer);
+					D3Control.TargetManager.SetAttackTarget(mob);
+					return true;
+				}
+				// Focus Hearld of Pestilence
+				if (mob.ID == 4738 && FocusHearldofPestilence && mob.DistanceFromPlayer <= 60)
+				{
+					if (outputMode >= 1)
+						D3Control.output("Chasing Down Hearld of Pestilence.. Dist: "+(int)mob.DistanceFromPlayer);
 					D3Control.TargetManager.SetAttackTarget(mob);
 					return true;
 				}
