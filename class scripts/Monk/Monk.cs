@@ -1,6 +1,6 @@
 ﻿/*
 	Monk Class Script by ASWeiler
-    Last Edited: 1/10/2013
+    Last Edited: 1/16/2013
     Thanks To: D3TNT for AOE Avoid and original Core.cs
 
     This file is part of Astronaut.
@@ -45,7 +45,8 @@ namespace Astronaut.Scripts.Monk
     {		
 		/*
 			CONFIGURABLE OPTIONS
-		*/		
+		*/
+		// [CONFIG]
 		// Potion OPTIONS
         static int hpPct_UsePotion = 30;
 		// Health Globe OPTIONS
@@ -61,7 +62,7 @@ namespace Astronaut.Scripts.Monk
 		static int hpPct_BreathofHeaven = 60;	// Set this to the HP % you want it to cast on to gain HP (set to 0 if you don't want it to cast on HP %)
 		static bool isUsingBlazingWrath	= true;	// Set this to true if you are using the Blazing Wrath rune that needs to be re-casted every 45 seconds for the buff
 		// Mantra OPTIONS
-		static bool CastMantraEvery3Seconds = true;	// Set this to true if you want the mantra to be re-casted every 3 seconds (good for Overawe)
+		static bool CastMantraEvery3Seconds = false;	// Set this to true if you want the mantra to be re-casted every 3 seconds (good for Overawe)
 		static int MantraDistance = 30;	// Set this to the distance you want to make sure mobs are within before re-casting (Only works if you have CastMantraEvery3Seconds set to true)
 		static int MantraTargetsNearby = 2; // Set this to the number of mobs within MantraDistance before re-casting the (Only works if you have CastMantraEvery3Seconds set to true)
 		static int hpPct_Mantra = 50;	// Set this to the HP % you want your Mantra to be re-casted on. (Set to 0 if you do not want your Mantra to be re-cast based off your HP)
@@ -81,8 +82,8 @@ namespace Astronaut.Scripts.Monk
 		// Fists of Thunder OPTIONS
 		static int FistsofThunderDistance = 30;	// 10 = Melee Range | 30 = Thunder Clap Rune Range
 		// Wave of Light OPTIONS
-		static int WaveofLightDistance = 40;	// Set this to the distance that the mobs need to be within to cast Wave of Light					
-		static int WaveofLightNumberofMobs = 2;	// Set this to the number of mobs that has to be within the WaveofLightDistance before casting Wave of Light
+		static int WaveofLightDistance = 50;	// Set this to the distance that the mobs need to be within to cast Wave of Light					
+		static int WaveofLightNumberofMobs = 1;	// Set this to the number of mobs that has to be within the WaveofLightDistance before casting Wave of Light
 		// Focus target OPTIONS
 		static bool FocusTreasureGoblin = true;		// True = focus attacking Treasure Goblin until dead
 		static bool FocusMobSummoner = true;		// True = focus attacking any mob summoners until dead
@@ -105,6 +106,7 @@ namespace Astronaut.Scripts.Monk
         static CWSpellTimer checkSafeSpotTimer = new CWSpellTimer(100);			// Check Safe Spot Timer
 		static CWSpellTimer MantraTimer = new CWSpellTimer(3 * 1000);	// Meant for all of the Mantra's 3 second "buffs". Set to 3 * 1000 if you want it to cast every 3 seconds
 		static CWSpellTimer SweepingWindTimer = new CWSpellTimer(5800);
+		// [/CONFIG]
 		/*
 			END CONFIGURABLE OPTIONS
 		*/
@@ -347,13 +349,6 @@ namespace Astronaut.Scripts.Monk
         {
             // return after 10 seconds regardless
             CWSpellTimer combatThresholdTimer = new CWSpellTimer(10 * 1000, false);
-			// If we are not in combat, break out of DoExecute
-            if (!D3Control.Player.isInCombat)
-			{
-				if (outputMode >= 2)
-					D3Control.output("We are not in combat anymore, leaving combat mode");
-				return;
-			}
 			// If we are not in game, break out of DoExecute
             if (!D3Control.IsInGame())
 			{
