@@ -1,7 +1,6 @@
 ﻿/*
 	Monk Class Script by ASWeiler
     Last Edited: 1/21/2013
-    Thanks To: D3TNT for AOE Avoid and original Core.cs
 
     This file is part of Astronaut.
     All rights reserved to Astronaut team
