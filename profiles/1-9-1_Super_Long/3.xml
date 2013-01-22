@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" is_instance="false" isQuest="false" questStopStepID="-1" patrolrange="40" KOSBlue="false" KOSYellow="false" KOSPurple="false" Look_x0020_For_x0020_Dungeon="true" Next_x0020_Closest_x0020_WP="false" Distance_x0020_From_x0020_Previous_x0020_WP="0" ExitASAP="true" RelogWhenDD="false" KOSTS="false">
+  <Description />
+  <Name />
+  <NormalWayPoints>
+    <WayPoint>
+      <Location x="2388.76" y="4843.34" z="-0.71" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2389.26" y="4675.92" z="7.51" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2368.76" y="4535.83" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2294.36" y="4505.12" z="-5.75" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2204.25" y="4454.92" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2291.45" y="4303.24" z="-1.82" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2442.68" y="4143.13" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2341.2" y="4034.3" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2400.9" y="3920.65" z="0.08" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2323.56" y="3858.55" z="10" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2246.97" y="3999.8" z="0.11" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2173.74" y="4103.06" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+  </NormalWayPoints>
+  <BlockPoints />
+  <enemyLevelRestriction lower_bound="0" upper_bound="0" />
+  <branchInfo type="Per Instance" followingFile="4.xml" followingFile2="">
+    <bottingDuration>0</bottingDuration>
+    <charBottingLevel lower_bound="0" upper_bound="0" />
+    <taskList>
+      <Task>Waypoint: Act1|New Tristram</Task>
+    </taskList>
+    <skillLevelRestriction Skill="" upper_bound="0" />
+  </branchInfo>
+  <LootContainer>false</LootContainer>
+  <instance openDoor="false" useHearth="false">
+    <entrance facing="0">
+      <loc x="0" y="0" z="0" type="0" />
+    </entrance>
+    <exit facing="0">
+      <loc x="0" y="0" z="0" type="0" />
+    </exit>
+    <runningType />
+    <range>0</range>
+    <pulling_number>0</pulling_number>
+  </instance>
+</Profile>

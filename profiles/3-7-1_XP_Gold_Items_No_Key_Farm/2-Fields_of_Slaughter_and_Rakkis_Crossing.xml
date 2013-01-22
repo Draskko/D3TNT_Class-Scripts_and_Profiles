@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" is_instance="false" isQuest="false" questStopStepID="-1" patrolrange="20" KOSBlue="false" KOSYellow="false" KOSPurple="false" Look_x0020_For_x0020_Dungeon="false" Next_x0020_Closest_x0020_WP="true" Distance_x0020_From_x0020_Previous_x0020_WP="2" ExitASAP="true" RelogWhenDD="false" KOSTS="true">
+  <Description />
+  <Name />
+  <NormalWayPoints>
+    <WayPoint>
+      <Location x="3390.6" y="614.18" z="0.11" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3384.39" y="670.8" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3351.98" y="725.72" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3294" y="736.13" z="0.2" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3256.85" y="728.4" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3177.89" y="728.05" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3200.74" y="670.84" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3252.12" y="614.97" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3292.24" y="560.78" z="0.2" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3313.28" y="499.73" z="0.2" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3367.33" y="422.46" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3417.96" y="340.02" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3332.63" y="307.65" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3273.6" y="404.58" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3184.25" y="446.02" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3097.61" y="467.27" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3098.99" y="538" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3115.69" y="578.01" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3117.46" y="612.57" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3124.59" y="665.62" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3136.03" y="708.48" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3069.84" y="748.38" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3020.91" y="729.57" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2955.46" y="725.04" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2912.64" y="734.3" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2874.52" y="727.7" z="0.26" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2896.88" y="677.56" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2887.29" y="608.82" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2896.47" y="544.94" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2949.11" y="507.26" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2983.66" y="485.83" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="3056.74" y="449.45" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2991.2" y="405.56" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2945.45" y="438.44" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2872.72" y="472.66" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2864.35" y="521.05" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2865.54" y="572.02" z="0.66" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2819.11" y="604.82" z="0.3" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2766.65" y="613.3" z="0.3" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2711.73" y="612.65" z="0.26" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2625.55" y="612.64" z="0.21" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2569.73" y="639.82" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2518.16" y="649.91" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2449.11" y="653.73" z="0.39" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2409.57" y="616.94" z="0.21" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2352" y="630.65" z="0.53" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2300.04" y="612.68" z="0.79" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2265.04" y="593.97" z="0.73" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2193.14" y="596.33" z="0.62" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2130.77" y="608.67" z="0.25" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2130.35" y="657.91" z="0.92" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2070.8" y="658.84" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2069.4" y="632.37" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2044.83" y="611.53" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="2010.2" y="595.87" z="-24.87" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1993.64" y="578.35" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1991.34" y="560.74" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1961.17" y="559.52" z="-9.93" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1935.41" y="562.84" z="0.85" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1925.27" y="598.31" z="0.31" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1860.89" y="608.07" z="0.21" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1811.79" y="618.36" z="0.21" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1776.97" y="630.97" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1723.24" y="628.49" z="0.17" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1666.23" y="614.83" z="0.25" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1637.32" y="592.33" z="0.33" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1621.62" y="564.16" z="0.44" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1618.5" y="542.54" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1593.25" y="539.54" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1590.45" y="521.92" z="0.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1546.91" y="516.62" z="-12.4" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1547.95" y="561.27" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1546.64" y="590.65" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1513.1" y="607.56" z="-24" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1484.59" y="628.18" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1447.41" y="625.56" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1409.9" y="628.24" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1371.92" y="608.43" z="-24.47" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1332.56" y="605.22" z="-24.25" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1300.09" y="607.8" z="-24.86" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1277.04" y="598.16" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1242.48" y="600.52" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1166.52" y="591.63" z="-24.48" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1104.61" y="594.38" z="-24.9" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1052.06" y="595.23" z="-24.52" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="1048.44" y="559.88" z="-24.3" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="989.3" y="559.86" z="0.24" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="979.59" y="585.06" z="0.2" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="940.22" y="603.22" z="0.25" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+  </NormalWayPoints>
+  <BlockPoints />
+  <enemyLevelRestriction lower_bound="0" upper_bound="0" />
+  <branchInfo type="Per Instance" followingFile="3-Arreat_Crater_1_Down_To_2.xml" followingFile2="">
+    <bottingDuration>0</bottingDuration>
+    <charBottingLevel lower_bound="0" upper_bound="0" />
+    <taskList>
+      <Task>Waypoint: Act3|Arreat Crater Level 1</Task>
+    </taskList>
+    <skillLevelRestriction Skill="" upper_bound="0" />
+  </branchInfo>
+  <LootContainer>false</LootContainer>
+  <instance openDoor="false" useHearth="false">
+    <entrance facing="0">
+      <loc x="0" y="0" z="0" type="0" />
+    </entrance>
+    <exit facing="0">
+      <loc x="0" y="0" z="0" type="0" />
+    </exit>
+    <runningType />
+    <range>0</range>
+    <pulling_number>0</pulling_number>
+  </instance>
+</Profile>

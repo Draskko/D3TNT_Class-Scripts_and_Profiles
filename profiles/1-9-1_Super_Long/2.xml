@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" is_instance="false" isQuest="false" questStopStepID="-1" patrolrange="10" KOSBlue="false" KOSYellow="false" KOSPurple="false" Look_x0020_For_x0020_Dungeon="true" Next_x0020_Closest_x0020_WP="true" Distance_x0020_From_x0020_Previous_x0020_WP="0" ExitASAP="false" RelogWhenDD="false" KOSTS="false">
+  <Description />
+  <Name />
+  <NormalWayPoints>
+    <WayPoint>
+      <Location x="473.32" y="857.78" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="598.1" y="906.29" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="462.74" y="975.18" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="369.8" y="921.04" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="210.7" y="877.69" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="244.07" y="750.08" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="245.87" y="666.07" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="358.81" y="604.2" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="489.41" y="653.01" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+    <WayPoint>
+      <Location x="436.06" y="770.29" z="20.1" type="0" />
+      <WPType>Normal</WPType>
+    </WayPoint>
+  </NormalWayPoints>
+  <BlockPoints />
+  <enemyLevelRestriction lower_bound="0" upper_bound="0" />
+  <branchInfo type="Per Instance" followingFile="3.xml" followingFile2="">
+    <bottingDuration>0</bottingDuration>
+    <charBottingLevel lower_bound="0" upper_bound="0" />
+    <taskList>
+      <Task>Waypoint: Act1|Highlands Crossing</Task>
+    </taskList>
+    <skillLevelRestriction Skill="" upper_bound="0" />
+  </branchInfo>
+  <LootContainer>false</LootContainer>
+  <instance openDoor="false" useHearth="false">
+    <entrance facing="0">
+      <loc x="0" y="0" z="0" type="0" />
+    </entrance>
+    <exit facing="0">
+      <loc x="0" y="0" z="0" type="0" />
+    </exit>
+    <runningType />
+    <range>0</range>
+    <pulling_number>0</pulling_number>
+  </instance>
+</Profile>
