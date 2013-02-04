@@ -1,6 +1,6 @@
 ﻿/*
-	Monk Class Script by ASWeiler
-    Last Edited: 1/21/2013
+	All in One Class Script by ASWeiler
+    Last Edited: 2/3/2013
 
     This file is part of Astronaut.
     All rights reserved to Astronaut team
@@ -51,7 +51,21 @@ namespace Astronaut.Scripts.Monk
 		// Health Globe OPTIONS
 		static int DistancetoHealthGlobe = 20;	// Set this to how close you want to be to the health globe to pick it up *2 for 0 pickup radius*
 		static int hpPct_HealthGlobe = 60;	// Small: Heals for about 18-20%. Dropped by normal monsters mostly. || Large: Heals for about 33-35%. Dropped by champions and uniques mostly.
-		static bool DashtoHealthGlobe = true;	// Set this to true if you want to use Dash twords an HP Globe (helps to get through packs you are stuck in)
+		// Focus target OPTIONS
+		static bool FocusTreasureGoblin = true;		// True = focus attacking Treasure Goblin until dead
+		static bool FocusMobSummoner = false;		// True = focus attacking any mob summoners until dead
+		static bool FocusBloodClanSpearman = false; // True = focus the Blood Clan Spearman until dead
+		static bool FocusFallenManiac = false;	// True = focus attacking the Fallen Maniac (exploding bastards) until dead 
+		static bool FocusHearldofPestilence = false;	// True == focus attacking the Hearald of Pestilence until dead (poison underground guys)
+		// Avoid AOE OPTIONS
+		static bool AvoidAoE = false;            // try to avoid AoE (desecrate and middle of arcane beams)
+		static int  AoESleepTime = 1000;         // time in ms to delay when moving to avoid AoE
+		// General Settings (Avoid AOE | Focus Pack Leader | Regular and Elite Scan Distances)
+		static int NumofAttacksTillChangeTarget = 3;	// Times to cast attack spells before choosing the closest target again (helps to not be stuck)
+        static int RegularMobScanDistance = 40;    // attack radius for regular mobs (maximum 100 or about two screens)
+        static int EliteMobScanDistance = 60;     // attack radius for elite mobs (maximum 100 or about two screens)
+		static int outputMode = 1;				// 0 = Minimal Output | 1 = Normal Output | 2 = Debug Output
+
 		// Inner Sanctuary OPTIONS
         static int hpPct_InnerSanctuary = 50;
 		// Serenity OPTIONS
@@ -83,9 +97,12 @@ namespace Astronaut.Scripts.Monk
 		// Fists of Thunder OPTIONS
 		static int FistsofThunderDistance = 30;	// 10 = Melee Range | 30 = Thunder Clap Rune Range
 		// Seven-Sided Strike OPTIONS
+		static int NumberOfMobsNearbySevenSidedStrike = 99;	// Set this to the number of mobs that has to be within the  before using the spell. (set to 99 or something high to make it only use based on HP % set below
 		static int hpPct_SevenSidedStrike = 80; // If you do not want this to be used on a HP % based, and just have it use when there are 5 or more mobs within the rage it can hit them at, set this value to 0.
 		// Dashing Strike OPTIONS
-		static int DashingStrikeClosestDist = 10;	// Set this to the closest distance you want to use Dashing Strike on a target.
+		static bool DashtoHealthGlobe = true;	// Set this to true if you want to use Dash twords an HP Globe (helps to get through packs you are stuck in)
+		static bool DashoutofAOE = true;		// Use Dashing Strike to escape the AOE
+		static int DashingStrikeClosestDist = 5;	// Set this to the closest distance you want to use Dashing Strike on a target.
 		static int DashingStrikeFurthestDist = 50;	// Set this to the furthest distance you want to use Dashing Strike on a target.
 		static int DashingStrikeSpiritNeeded = 10; // Set this to the amount of spirit you must have before using Dashing Strike (0 = as much as possible)
 		// Sweeping Wind OPTIONS
@@ -94,30 +111,33 @@ namespace Astronaut.Scripts.Monk
 		// Wave of Light OPTIONS
 		static int WaveofLightDistance = 50;	// Set this to the distance that the mobs need to be within to cast Wave of Light					
 		static int WaveofLightNumberofMobs = 1;	// Set this to the number of mobs that has to be within the WaveofLightDistance before casting Wave of Light
-		// Focus target OPTIONS
-		static bool FocusTreasureGoblin = true;		// True = focus attacking Treasure Goblin until dead
-		static bool FocusMobSummoner = false;		// True = focus attacking any mob summoners until dead
-		static bool FocusBloodClanSpearman = false; // True = focus the Blood Clan Spearman until dead
-		static bool FocusFallenManiac = false;	// True = focus attacking the Fallen Maniac (exploding bastards) until dead 
-		static bool FocusHearldofPestilence = false;	// True == focus attacking the Hearald of Pestilence until dead (poison underground guys)
-		// Avoid AOE OPTIONS
-		static bool AvoidAoE = false;            // try to avoid AoE (desecrate and middle of arcane beams)
-		static bool DashoutofAOE = true;		// Use Dashing Strike to escape the AOE
-		static int  AoESleepTime = 1000;         // time in ms to delay when moving to avoid AoE
-		// Misc Settings (Avoid AOE | Focus Pack Leader | Regular and Elite Scan Distances)
-		static int NumofAttacksTillChangeTarget = 3;	// Times to cast attack spells before choosing the closest target again (helps to not be stuck)
-        static int RegularMobScanDistance = 40;    // attack radius for regular mobs (maximum 100 or about two screens)
-        static int EliteMobScanDistance = 60;     // attack radius for elite mobs (maximum 100 or about two screens)
-		static int outputMode = 1;				// 0 = Minimal Output | 1 = Normal Output | 2 = Debug Output
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		// TIMERS
 		static CWSpellTimer combatThresholdTimer = new CWSpellTimer(3 * 1000, false);	// Return after 10 seconds regardless
         static CWSpellTimer checkLootTimer = new CWSpellTimer(2 * 1000, false);			// Check for loot every 2 seconds
-		static CWSpellTimer checkMysticAllyTimer = new CWSpellTimer(1 * 1000, false);			// Buff Check every 3 seconds
-        static CWSpellTimer ExplodingPalmTimer = new CWSpellTimer(3 * 1000);			// Exploding Palm Timer
+
+
         static CWSpellTimer moveBackTimer = new CWSpellTimer(1 * 1000);					// Move Back Timer
         static CWSpellTimer checkSafeSpotTimer = new CWSpellTimer(100);			// Check Safe Spot Timer
-		static CWSpellTimer CheckInGameTimer = new CWSpellTimer(600 * 1000);	// Check in Game Timer
+
 		// [/CONFIG]
+		
+		static CWSpellTimer checkMysticAllyTimer = new CWSpellTimer(1 * 1000, false);			// Buff Check every 3 seconds
+        static CWSpellTimer ExplodingPalmTimer = new CWSpellTimer(3 * 1000);			// Exploding Palm Timer
 		/*
 			END CONFIGURABLE OPTIONS
 		*/
@@ -181,9 +201,9 @@ namespace Astronaut.Scripts.Monk
                 while (isWorking)
                 {
 					//
-                    if (!D3Control.IsInGame() && CheckInGameTimer.IsReady)
+                    if (!D3Control.IsInGame())
 					{
-						CheckInGameTimer.Reset();
+
 						return;
 					}
 					//
@@ -743,7 +763,7 @@ namespace Astronaut.Scripts.Monk
 				}
 			}
 			// DASHING STRIKE
-			if (D3Control.canCast("Dashing Strike") && target.DistanceFromPlayer > DashingStrikeClosestDist && target.DistanceFromPlayer <= DashingStrikeFurthestDist && D3Control.Player.Spirit >= DashingStrikeSpiritNeeded)
+			if (D3Control.canCast("Dashing Strike") && target.DistanceFromPlayer >= DashingStrikeClosestDist && target.DistanceFromPlayer <= DashingStrikeFurthestDist && D3Control.Player.Spirit >= DashingStrikeSpiritNeeded)
 			{
 				if (CastMonkTargetSpell("Dashing Strike", target))
 				{
@@ -810,7 +830,7 @@ namespace Astronaut.Scripts.Monk
 			}
 			// Seven-Sided Strike
 			var SSSmobs = D3Control.TargetManager.GetAroundEnemy(20).Count;
-			if ((SSSmobs >= 5 || D3Control.Player.HpPct < hpPct_SevenSidedStrike) && D3Control.canCast("Seven-Sided Strike"))
+			if ((SSSmobs >= NumberOfMobsNearbySevenSidedStrike || D3Control.Player.HpPct < hpPct_SevenSidedStrike) && D3Control.canCast("Seven-Sided Strike"))
 			{
 				if (CastMonkSpell("Seven-Sided Strike", D3Control.Player.Location))
 				{
