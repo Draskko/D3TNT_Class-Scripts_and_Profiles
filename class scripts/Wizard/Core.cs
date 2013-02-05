@@ -68,7 +68,7 @@ namespace Astronaut.Scripts.Wizard
         static int SlowTimeDistance = 10; // If the target is within this range, cast Slow Time
 		static int EliteSlowTimeDistance = 20; // If a Elite is within this range, cast Electrocute
 		// Wave of Force OPTIONS
-		static int WaveOfForceDistance = 7; // If the target is within this range, cast Wave of Force
+		static int WaveOfForceRange = 7; // If the target is within this range, cast Wave of Force
 		// Blizzard OPTIONS
 		static int BlizzardArcanePowerAmount = 40; // Set this to the amount of Arcane Power you must have before you will cast Blizzard
 		static CWSpellTimer blizzardTimer = new CWSpellTimer(6 * 1000);
@@ -169,15 +169,13 @@ namespace Astronaut.Scripts.Wizard
                         safeSpot = D3Control.getSafePoint(dTargetInfo);
                     }
 					// Explosive Blast
-					if ((D3Control.canCast("Explosive Blast") && D3Control.Player.ArcanePower >= ExplosiveBlastArcanePower && D3Control.Player.isMovingForward) && useExplosiveBlastWhileMoving)
-					{
+					if (D3Control.canCast("Explosive Blast") && D3Control.Player.ArcanePower >= ExplosiveBlastArcanePower && D3Control.Player.isMovingForward && useExplosiveBlastWhileMoving)
 						CastWizardSpell("Explosive Blast", D3Control.Player.Location);
-					}
 					// Frost Nova
-					if (D3Control.canCast("Frost Nova") && D3Control.TargetManager.GetAroundEnemy(FrostNovaDistance).Count > 0)
+					if (D3Control.canCast("Frost Nova") && D3Control.TargetManager.GetAroundEnemy(FrostNovaRange).Count > 0)
 						CastWizardSpell("Frost Nova", D3Control.Player.Location);
 					// Wave of Force
-					if (D3Control.canCast("Wave of Force") && D3Control.TargetManager.GetAroundEnemy(WaveOfForceDistance).Count > 0)
+					if (D3Control.canCast("Wave of Force") && D3Control.TargetManager.GetAroundEnemy(WaveOfForceRange).Count > 0)
 						CastWizardSpell("Wave of Force", D3Control.Player.Location);
 					// If we are low in HP, use Potion
 					if (D3Control.Player.HpPct <= hpPct_UsePotion)
@@ -608,7 +606,7 @@ namespace Astronaut.Scripts.Wizard
                 return false;
 			}
 			// Wave of Force
-			var NumWithinForceRange = D3Control.TargetManager.GetAroundEnemy(WaveOfForceDistance).Count;
+			var NumWithinForceRange = D3Control.TargetManager.GetAroundEnemy(WaveOfForceRange).Count;
 			if (NumWithinForceRange > 0)
 			{
 				// Wave of Force
