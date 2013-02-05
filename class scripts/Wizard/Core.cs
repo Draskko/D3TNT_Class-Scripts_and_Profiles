@@ -1,6 +1,5 @@
 ﻿/*
 	Wizard Class Script by ASWeiler
-	Updated 1/31/2013
 	
     This file is part of Astronaut.
     All rights reserved to Astronaut team
@@ -38,6 +37,8 @@ namespace Astronaut.Scripts.Wizard
         {
             base.DoEnter(Entity);
             combatState = new Wizard.CombatState();
+			string modified_date = "2/4/2013";
+			D3Control.output("ASWeiler's Monk Class Script (last modified "+modified_date+").");
         }
     }
 	
@@ -57,11 +58,12 @@ namespace Astronaut.Scripts.Wizard
 		// Electrocute OPTIONS
 		static int ElectrocuteDistance = 40; // If the target is within this range, cast Electrocute
 		// Frost Nova OPTIONS
-        static int FrostNova = 20; // 
-		static int EliteFrostNova = 20; // If a Elite is within this range, cast Frost Nova
+        static int FrostNovaRange = 20; // 
+		static int EliteFrostNovaRange = 20; // If a Elite is within this range, cast Frost Nova
 		// Explosive Blast OPTIONS
 		static bool useExplosiveBlastWhileMoving = true; // True = Cast Explosive Blast while walking
 		static int ExplosiveBlastDistance = 50;	// If the target is within this range, cast Explosive Blast
+		static int ExplosiveBlastArcanePower = 40; // Set this to the amount of Arcane Power you want to have before casting Explosive Blast
 		// Slow Time OPTIONS
         static int SlowTimeDistance = 10; // If the target is within this range, cast Slow Time
 		static int EliteSlowTimeDistance = 20; // If a Elite is within this range, cast Electrocute
@@ -81,7 +83,7 @@ namespace Astronaut.Scripts.Wizard
 			GENERAL OPTIONS
 		*/
 		// Potion OPTIONS
-		static int hpPct_UsePotion = 70; // The HP % to use a potion on
+		static int hpPct_UsePotion = 50; // The HP % to use a potion on
 		// Health Globe OPTIONS
 		static int hpPct_HealthGlobe = 60; // The HP % to search for a health globe.
 		static int PowerHungry_HealthGlobe = 40; // If you use Power Hungry passive skill, set the Arcane Power level you want to search for a health globe.
@@ -89,11 +91,10 @@ namespace Astronaut.Scripts.Wizard
 		static bool AvoidAoE = true; // try to avoid AoE (desecrate and middle of arcane beams)
 		// Target OPTIONS
         static int MobScanDistance = 50; // scan radius for regular mobs (maximum 100 or about two screens)
-		const int attackDistance = 15; // Set how far back we attack from
+		const int attackDistance = 10; // Set how far back we attack from
 		static bool FocusPackLeader = false; // True = focus target elite pack leader until dead
 		static bool FocusTreasureGoblin = true;	// True = focus attacking Treasure Goblin until dead
-		static bool FocusMobSummoner = true; // True = focus attacking any mob summoners until dead
-		
+		static bool FocusMobSummoner = true; // True = focus attacking any mob summoners until dead		
 		/* 
 			ADVANCED SETTINGS 
 		*/
@@ -101,8 +102,10 @@ namespace Astronaut.Scripts.Wizard
         static Vector3D safeSpot = null, oldSafeSpot = null;
 		const int skillInterval = 150; 				// Set how long we should wait after casting a spell	
 		static bool isPowerHungry = false;
-		static int ouputMode = 1;
+		static int outputMode = 1;
         const int HydraNumber = 1;
+		public int oldTargetHP = 0;
+		public int numofAttacks = 0;
 		//
 		#region ability
         static Dictionary<string, int> abilityInfoDic = new Dictionary<string, int>();
@@ -112,7 +115,6 @@ namespace Astronaut.Scripts.Wizard
 			TIMERS
 		*/
         static CWSpellTimer moveBackTimer = new CWSpellTimer(3 * 1000);
-		static CWSpellTimer checkHPTimer = new CWSpellTimer(3 * 1000);
 		static CWSpellTimer lootcheckTimer = new CWSpellTimer(2 * 1000);
 		static CWSpellTimer checkBuffTimer = new CWSpellTimer(1 * 1000, false);
 		static CWSpellTimer checkInGameTimer = new CWSpellTimer(1 * 1000);
@@ -151,23 +153,15 @@ namespace Astronaut.Scripts.Wizard
 			
             Random rgen = new Random();
             int seed = rgen.Next();
-			if (ouputMode > 1)
+			if (outputMode > 1)
 				D3Control.output("Starting Spell Thread. Seed: " + seed);
             try
             {
                 while (true)
                 {
 					// If we are not in game, skip the rest
-					if (checkInGameTimer.IsReady)
-					{
-						if (!D3Control.IsInGame())
-						{
-							if (ouputMode > 1)
-								D3Control.output("Not in game anymore. Aborting Spell Thread! Seed: " + seed);             
-							return;
-						}
-						checkInGameTimer.Reset();
-					}
+					if (!D3Control.IsInGame())          
+						return;
                     if (updateSafeSpotTimer.IsReady && D3Control.Player.isInCombat)
                     {
                         updateSafeSpotTimer.Reset();
@@ -175,16 +169,20 @@ namespace Astronaut.Scripts.Wizard
                         safeSpot = D3Control.getSafePoint(dTargetInfo);
                     }
 					// Explosive Blast
-					if ((D3Control.canCast("Explosive Blast") && D3Control.Player.ArcanePower >= 40 && D3Control.Player.isMovingForward) && useExplosiveBlastWhileMoving)
+					if ((D3Control.canCast("Explosive Blast") && D3Control.Player.ArcanePower >= ExplosiveBlastArcanePower && D3Control.Player.isMovingForward) && useExplosiveBlastWhileMoving)
 					{
 						CastWizardSpell("Explosive Blast", D3Control.Player.Location);
 					}
-					// Check for loot outside combat.
-					if (lootcheckTimer.IsReady)
-					{
-						D3Control.checkLoots();
-						lootcheckTimer.Reset();
-					}
+					// Frost Nova
+					if (D3Control.canCast("Frost Nova") && D3Control.TargetManager.GetAroundEnemy(FrostNovaDistance).Count > 0)
+						CastWizardSpell("Frost Nova", D3Control.Player.Location);
+					// Wave of Force
+					if (D3Control.canCast("Wave of Force") && D3Control.TargetManager.GetAroundEnemy(WaveOfForceDistance).Count > 0)
+						CastWizardSpell("Wave of Force", D3Control.Player.Location);
+					// If we are low in HP, use Potion
+					if (D3Control.Player.HpPct <= hpPct_UsePotion)
+						D3Control.usePotion();
+					//
                     Thread.Sleep(300);
                 }
             }
@@ -375,21 +373,21 @@ namespace Astronaut.Scripts.Wizard
 					//
 					if ((mob.ID == 5985 || mob.ID == 5984 || mob.ID == 5985 || mob.ID == 5987 || mob.ID == 5988) && FocusTreasureGoblin)
 					{
-						if (ouputMode > 0)
+						if (outputMode > 0)
 						D3Control.output("Found Treasure Goblin (ID: " + mob.ID + " Dist: " + (int)mob.DistanceFromPlayer+")");
                         D3Control.TargetManager.SetAttackTarget(mob);
                         return true;					
 					}
 					if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100) && FocusMobSummoner)
 					{
-						if (ouputMode > 0)
+						if (outputMode > 0)
 						D3Control.output("Found Mob Summoner ID: "+mob.ID+" Dist: "+(int)mob.DistanceFromPlayer+")");
                         D3Control.TargetManager.SetAttackTarget(mob);
                         return true;
 					}
                     if ((mob.MLevel == 2) && FocusPackLeader)
                     {
-						if (ouputMode > 0)
+						if (outputMode > 0)
 						D3Control.output("Found Pack Leader ID: "+mob.ID+" Dist: "+(int)mob.DistanceFromPlayer+")");
                         D3Control.TargetManager.SetAttackTarget(mob);
                         return true;
@@ -437,7 +435,7 @@ namespace Astronaut.Scripts.Wizard
 				Thread.Sleep(10);
                 if (combatThresholdTimer.IsReady)
 				{
-					if (ouputMode > 0)
+					if (outputMode > 0)
 					{
 						D3Control.output("Combat Timer Expired!");
 					}
@@ -452,6 +450,12 @@ namespace Astronaut.Scripts.Wizard
 				if (D3Control.Player.HpPct < hpPct_UsePotion)
 				{
 					D3Control.usePotion();
+				}
+				// Check for loot outside combat.
+				if (lootcheckTimer.IsReady)
+				{
+					D3Control.checkLoots();
+					lootcheckTimer.Reset();
 				}
 				// Check if we need to re-cast buffs
 				if (checkBuffTimer.IsReady)
@@ -486,7 +490,7 @@ namespace Astronaut.Scripts.Wizard
                 else if (!pickTarget())
                 {
 					// If nothing was found to attack, return from DoExecute
-                    if (ouputMode > 1)
+                    if (outputMode > 1)
 						D3Control.output("No target found, returning from DoExecute.");
                     break;
                 }
@@ -494,38 +498,38 @@ namespace Astronaut.Scripts.Wizard
         }
 
 		// This is where we try and cast one of the Signature spells then return out to try other spells or get new target
-        void castPrimary(D3Object target)
+        bool castPrimary(D3Object target)
         {
             // Make sure the target is still valid
             if (!D3Control.isObjectValid(target))
 			{
-                return;
+                return false;
 			}
 			// Teleport
 			if ((D3Control.Player.ArcanePower <= TeleportArcanePowerAmount) && target.DistanceFromPlayer <= 60 && target.DistanceFromPlayer > 10 && CastWizardSpell("Teleport", target.Location))
 			{
-				Thread.Sleep(10);
-				return;
+				Thread.Sleep(skillInterval);
+				return true;
 			}
             if (target.DistanceFromPlayer <= SpectralBladeDistance && CastWizardSpell("Spectral Blade", target.Location))
             {
 				Thread.Sleep(skillInterval);
-				return;
+				return true;
             }
 			// Shock Pulse
             if (target.DistanceFromPlayer <= ShockPulseDistance && CastWizardSpell("Shock Pulse", target.Location))
             {
 				Thread.Sleep(skillInterval);
-				return;
+				return true;
             }
             // Electrocute
 			if (target.DistanceFromPlayer <= ElectrocuteDistance && CastWizardSpell("Electrocute", target.Location))
             {
 				Thread.Sleep(skillInterval);
-				return;
+				return true;
             }
             //
-            return;
+            return false;
         }
 		
 		// Cast Secondary 
@@ -544,7 +548,8 @@ namespace Astronaut.Scripts.Wizard
 				if (castSuccessfully)
 				{
 					D3Control.output("Arcane Orb");
-					Thread.Sleep(50);
+					Thread.Sleep(skillInterval);
+					return true;
 				}
 			}
 			// Ray of Frost
@@ -554,7 +559,8 @@ namespace Astronaut.Scripts.Wizard
 				if (castSuccessfully)
 				{
 					D3Control.output("Ray of Frost");
-					Thread.Sleep(50);
+					Thread.Sleep(skillInterval);
+					return true;
 				}
 			}
 			// Arcane Torrent
@@ -564,7 +570,8 @@ namespace Astronaut.Scripts.Wizard
 				if (castSuccessfully)
 				{
 					D3Control.output("Arcane Torrent");
-					Thread.Sleep(50);
+					Thread.Sleep(skillInterval);
+					return true;
 				}
 			}
 			// Disintegrate
@@ -574,7 +581,8 @@ namespace Astronaut.Scripts.Wizard
 				if (castSuccessfully)
 				{
 					D3Control.output("Disintegrate");
-					Thread.Sleep(50);
+					Thread.Sleep(skillInterval);
+					return true;
 				}
 			}
 			// Magic Missile
@@ -584,7 +592,8 @@ namespace Astronaut.Scripts.Wizard
 				if (castSuccessfully)
 				{
 					D3Control.output("Magic Missile");
-					Thread.Sleep(50);
+					Thread.Sleep(skillInterval);
+					return true;
 				}
 			}
 			// Return False
@@ -606,42 +615,42 @@ namespace Astronaut.Scripts.Wizard
 				if (D3Control.canCast("Wave of Force"))
 				{
 					CastWizardSpell("Wave of Force", D3Control.Player.Location);
-					Thread.Sleep(10);
+					Thread.Sleep(skillInterval);
 					return true;
-				}
-			}
-			// Frost Nova
-			if (D3Control.canCast("Frost Nova"))
-			{
-				// Elite Mobs
-				var NumElitesWithinNovaRange = D3Control.TargetManager.GetAroundEnemy(EliteFrostNova).Count;
-				if (NumElitesWithinNovaRange > 0)
-				{
-					// Frost Nova
-					if (D3Control.canCast("Frost Nova"))
-					{
-						Thread.Sleep(skillInterval);
-						return true;
-					}
-				}
-				// Normal Mobs
-				var NumWithinNovaRange = D3Control.TargetManager.GetAroundEnemy(FrostNova).Count;
-				if (NumWithinNovaRange > 0)
-				{
-					if (CastWizardSpell("Frost Nova", D3Control.Player.Location))
-					{
-						Thread.Sleep(skillInterval);
-						return true;
-					}
 				}
 			}
 			// Explosive Blast
 			if (D3Control.canCast("Explosive Blast"))
 			{
 				var NumWithinBlastRange = D3Control.TargetManager.GetAroundEnemy(ExplosiveBlastDistance).Count;
-				if (NumWithinBlastRange > 0)
+				if (NumWithinBlastRange > 0 && D3Control.Player.ArcanePower >= ExplosiveBlastArcanePower)
 				{
 					if (CastWizardSpell("Explosive Blast", D3Control.Player.Location))
+					{
+						Thread.Sleep(skillInterval);
+						return true;
+					}
+				}
+			}
+			// Frost Nova
+			if (D3Control.canCast("Frost Nova"))
+			{
+				// Elite Mobs
+				var NumElitesWithinNovaRange = D3Control.TargetManager.GetAroundEnemy(EliteFrostNovaRange).Count;
+				if (NumElitesWithinNovaRange > 0)
+				{
+					// Frost Nova
+					if (CastWizardSpell("Frost Nova", D3Control.Player.Location))
+					{
+						Thread.Sleep(skillInterval);
+						return true;
+					}
+				}
+				// Normal Mobs
+				var NumWithinNovaRange = D3Control.TargetManager.GetAroundEnemy(FrostNovaRange).Count;
+				if (NumWithinNovaRange > 0)
+				{
+					if (CastWizardSpell("Frost Nova", D3Control.Player.Location))
 					{
 						Thread.Sleep(skillInterval);
 						return true;
@@ -802,7 +811,7 @@ namespace Astronaut.Scripts.Wizard
             if (D3Control.getDoorInWay(target) != null)
             {
 				// Move closer to the door
-				if (ouputMode > 0)
+				if (outputMode > 0)
                 D3Control.output("A door inbetween? Try to move closer and open the door.");
                 D3Control.MoveTo(target, 2.5f);      // a thread doing the move
                 return;
@@ -811,7 +820,7 @@ namespace Astronaut.Scripts.Wizard
             if (AvoidAoE && avoidAoE())
                 return;
             // nothing in range or no LOS to target so lets move closer
-            if ((!isWithinAttackDistance(target) || D3Control.LOS(target.Location)) && !target.IsDead)
+            if ((!isWithinAttackDistance(target) || D3Control.LOS(target.Location)) && !target.IsDead && !D3Control.Player.isMovingForward)
             {
 				//
 				float d = target.DistanceFromPlayer;
@@ -846,61 +855,87 @@ namespace Astronaut.Scripts.Wizard
 				}
                 Thread.Sleep(50);
             }
-			
-			// If we are close enough to attack or if we are not moving when the moving thread is active and the target is still alive ATTACK!
-            else if (isWithinAttackDistance(target) || (D3Control.isMovingWorking() && !D3Control.Player.isMovingForward && !target.IsDead))
+			// Check if we got stuck and if we do, try to get unstuck
+			if (outputMode >= 2)
+				D3Control.output("Is Moving Forward Check");
+            if (D3Control.isMovingWorking() && !D3Control.Player.isMovingForward)
             {
+				AttackToGetUnstuck();
+				return;
+            }
+			// If we are close enough to attack or if we are not moving when the moving thread is active and the target is still alive ATTACK!
+            if (isWithinAttackDistance(target) || (D3Control.isMovingWorking() && !D3Control.Player.isMovingForward && !target.IsDead))
+            {
+				// Get the target's HP before we start trying to kill it. This is used later to check if we didn't hurt the target and need to get unstuck or change targets
+				oldTargetHP = (int)target.Hp;
+				// Use the attack spells
 				D3Control.output("Attacking Target ID: "+D3Control.curTarget.ID);
 				castDefencive(target);
 				castForce(target);
 				castSecondary(target);
 				castPrimary(target);
+				// If the target's HP has not changed since we went through all of our spells, get a new target to attack in case we are stuck
+				if (oldTargetHP == target.Hp)
+				{
+					D3Control.output("Target's HP has not changed, switching target. OldHP "+oldTargetHP+" CurHP"+target.Hp);
+					AttackToGetUnstuck();
+					pickTarget();
+				}
 			}
-			
-			if (D3Control.isMovingWorking() && !D3Control.Player.isMovingForward)
-			{
-				D3Object ClosestTarget = D3Control.ClosestEnemy;
-				D3Control.TargetManager.SetAttackTarget((D3Unit)ClosestTarget);
-				return;
-			}
-			
-			return;
         }
+		// This is used to get unstuck by using common attack spells
+		void AttackToGetUnstuck()
+		{
+			// Mention we are stuck if outputMode is set to 1 or higher (normal output or debug)
+			if (outputMode >= 1)
+				D3Control.output("Cannot move forward, attacking in front of myself to clear a path.");
+			// Get target's location
+			Vector3D tLoc = D3Control.Player.Location;
+			// Set the location to attack as in front of myself
+			Vector3D location = D3Control.getTargetSideSpot(tLoc, 0, 0);
+			// Energy Twister
+			if (D3Control.canCast("Energy Twister"))
+				CastWizardSpell("Energy Twister", location);
+			// Explosive Blast
+			if (D3Control.canCast("Explosive Blast"))
+				CastWizardSpell("Explosive Blast", D3Control.Player.Location);
+			// Frost Nova
+			if (D3Control.canCast("Frost Nova"))
+				CastWizardSpell("Frost Nova", D3Control.Player.Location);
+		}
+		// This is our function responcible for checking if safeSpot is set and is different from oldSafeSpot. If it is the case, we run from the AoE to an known safe spot.
+		// Note the safeSpot is checked up on in --> public static void keepSpell()
         bool avoidAoE()
         {
+			// If we have found AoE to avoid, run out of it!
             if (oldSafeSpot != safeSpot)
             {
-                //D3Control.output("New Safe Spot X: " + safeSpot.X + " Y: " + safeSpot.Y + " Z: " + safeSpot.Z);
-                if (moveBackTimer.IsReady)
-                {
-                    moveBackTimer.Reset();
-
-                    D3Control.output("Try to avoid AoE!");
-                    float distance = D3Control.Player.DistanceTo(safeSpot);
-                    D3Control.ClickMoveTo(safeSpot);
-                    Thread.Sleep(250);
-                    return true;
-                }
-
+				// Run out of the AoE!
+                moverun(safeSpot);
+				// Now that we have ran out of the AoE, reset the oldSafeSpot which is used to make sure we are not avoiding the same AoE too much
                 oldSafeSpot = safeSpot;
+				return true;
             }
-
+			// Since we did not find any AoE to avoid, return false
             return false;
         }
-        
-        void moveback(int length)
+		// This is used to run to an location (only used for getting out of AoE currently)
+        void moverun(Vector3D location)
         {
+			// If it has not been too long since we last ran away, start to run away to the set location
             if (moveBackTimer.IsReady)
             {
-                if (D3Control.curTarget.DistanceFromPlayer < attackDistance)
-                {
-                    moveBackTimer.Reset();
-                    D3Control.ClickMoveTo(D3Control.getSideSpot(D3Control.Player.Location, 180, length));
-                    while (D3Control.Player.isMovingForward)
-                    {
-                        Thread.Sleep(10);
-                    }
-                }
+				// Reset our moveback timer
+                moveBackTimer.Reset();
+				// Click to move to an set location
+				D3Control.ClickMoveTo(location);
+				// While we are running, display that we are running and force us to not do anything else
+				while (D3Control.isMovingWorking())
+				{
+					if (outputMode >= 1)
+						D3Control.output("Running out of AOE");
+					Thread.Sleep(100);
+				}
             }
         }
 		
