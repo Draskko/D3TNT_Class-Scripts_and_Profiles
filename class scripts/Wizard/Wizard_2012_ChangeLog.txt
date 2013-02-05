@@ -1,0 +1,85 @@
+Wizard's 2012 Change Log
+
+7/1
+- Tweaked how it handels mobs. It kites more fluidly.
+- Tweaked when it uses Diamond Skin (made it use it at 50% hp instead of 80%)
+- Fixed Mirror Images (it was not even in the code to be used at all, now it works and only fires off in groups of 5 or more in a radius of 40)
+- Fixed Meteor (it's timer was bugged cause it used blizzard timer instead of it's own)
+
+7/28
+- Fixed use of Explosion Blast, Frost Nova, Mirrored Image, Force Wave  -- Now it only uses it when there are more then 5 mobs in 12 radius.
+- Attempted to add a AOE detection (like poison on ground) and attempt to avoid it. *MAY NOT WORK
+
+7/29
+- Changed radius for AOE Spells to 40 instead of 20.
+
+7/30
+- Wave of Force and Frost Nova will only fire if there is a mob close enough to hit and is a Elite or HP is under 80%.
+- Explosive Blast only fires off if there is a mob close enough. It will fire off every time it can when they get close enough.
+
+8/3
+- Perfected the pulling/kiting mobs a lot more.
+- Perfected use of every spell to use them at the best possible times.
+- The Wizard attacks from further back now and uses spells more effectivly.
+
+9/5
+- Did some minor work on the script (nothing major)
+- Made it so Frost Nova and spells like it fire off every time it will hit more than one enemy (Before it would only if you were under 70% HP or fighting an Elite)
+
+9/8
+- Huge overhaul of managing targets. (Huge thanks to D3TNT)
+- Hydras now cast every 5 seconds in when in battle.
+
+9/27
+- Start of huge overhault to moving to targets and attacking targets
+- Added detection of the mobs that you have to move in closer to activate
+- Other fixes, too many to list
+
+9/29
+- Major overhaul to moving in to targets completed- Major overhaul to attacking targets completed
+- Checking for buffs is now done every three seconds instead of before a fight.
+- Checking if we need to use a HP potion is checked every second instead of before a fight.
+- Checking if we need to run to a HP Globe is checked every second instead of before a fight and after a kill.
+- Added detection of Power Hungry which makes the bot run to a Health Globe if under 40 Arcane Power.
+
+10/1
+- Some big changes for Melee based Wizards and movement
+
+10/2
+- Added hpPct_DiamondSkinElite and hpPct_DiamondSkinNormal settings
+- Tweaked scanning for mobs distance a little
+- Other MINOR changes. Just basically settings were moved around a little so it is easy to change the settings to your liking.
+
+11/3
+- HUGE changes done to moving to targets as well as attacking them
+- HUGE change to when every spell casts
+- HUGE update to Melee and Ranged scripts
+- Basically so much was done I cannot begin to explain.
+
+11/4
+- Made the bot check for mobs near enough to be hit by Frost Nova, Wave of Force, and Slow time the entire time (even not in combat)
+- Made the bot cast Explosive Blast every time it can and we have more than 40 arcane power (even not in combat)
+This should fix this issue with objects and doors that need to be broken to get past. It also should fix mobs that get in the way of the current target or get too close outside combat.
+
+11/10
+- Lots more work done
+- Loot checking should work amazing now (if you don't see it grab an item it is most likely your Loot Config settings).
+
+11/22
+- Blizzard is now set to cast every one second instead of 5 (this is configurable inside the script)
+- Now if you set hpPct_DiamondSkin to 100 it will cast it as often as possible (good for those who need it that way)
+- Increased the MobScanDistance to 60 (just outside the screen view), this may help or not. So you might want to mess with it if you don't think it did any good.
+- Added an option to prioritise killing Mob Summoners like the ones that summon the midgets all the time. (not all are gathered yet, I do need help getting the IDs for them).
+- Re-Added skipping untargetable mobs
+- Tweaked how we check if we are close enough to the target a bit more. Even added Butcher in the special target list so you can tell the bot to be closer or not.
+- Now we check for Health Globes before using potions
+- Added a ton of checks between attacks to be sure we don't try to run to and or attack an target that is already dead or invalid.
+- Added a options on how much Arcane Power you must have before casting Energy Twister, Explosive Blast, Blizzard, and Meteor
+- A lot more comments added to the code for ease of understanding how it works.
+
+12/2
+- Added Archon's spells (see lines 584 too 620)
+- Added more spells to use the latest API code (NewCastTargetSpell)
+- Tested new AOE avoiding method (seems to work fine) *had to remove it from Thread so we would not crash D3TNT*
+- Now we stop moving before casting spells that attack an target
+- More things done too, I forget all of it
