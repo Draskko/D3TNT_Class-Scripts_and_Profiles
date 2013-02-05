@@ -37,18 +37,58 @@ namespace Astronaut.Scripts.Wizard
         {
             base.DoEnter(Entity);
             combatState = new Wizard.CombatState();
-			string modified_date = "2/4/2013";
-			D3Control.output("ASWeiler's Monk Class Script (last modified "+modified_date+").");
+			string modified_date = "2/5/2013";
+			D3Control.output("ASWeiler's Wizard Class Script (last modified "+modified_date+").");
         }
     }
 	
     public class CombatState : Common.CombatState
-    {	
-		/* CONFIGURATION OPTIONS */
-		
+    {
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------
+		// ------------------------------------------- CLASS SCRIPT OPTIONS BELOW -----------------------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------	
 		/*
-			Spell OPTIONS
+			Useful Info To Know Before Changing OPTIONS
+				OPTIONS like skillInterval or any Timers are measured in ms.
+				1000ms = 1 Second
+				3 * 1000 = 3 Seconds
+				5 * 60 * 1000 = 5 Minutes
+				hpPct_ = Based off your HP Percentage. (So setting it to 50 would mean 50% HP)
+				If the OPTION has the word Distance or Range in it, that is measured in feet.
+				50 feet = about one screen length
+				Any OPTION with ArcanePower in it means that spell will only be used when you have that much or more Arcane Power available
 		*/
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------
+		/* 
+			GENERAL OPTIONS (Attacks, Attack Distance
+		*/
+		// Output Mode OPTION
+		static int outputMode = 1; // 0 = Minimal Output | 1 = Normal Output | 2 = Debug Output
+		// Potion OPTIONS
+		static int hpPct_UsePotion = 50; // The HP % to use a potion on
+		// Health Globe OPTIONS
+		static int hpPct_HealthGlobe = 60; // The HP % to search and run to a health globe.
+		static bool isPowerHungry = false; // Set this to true if you use the Power Hungry passive skill (so far only good for the OPTION below which governs when you run to a HP Globe for Arcane Power)
+		static int PowerHungry_HealthGlobe = 40; // If you use Power Hungry passive skill, set the Arcane Power level you want to search for a health globe.
+		// AOE OPTIONS
+		static bool AvoidAoE = true; // try to avoid AoE (desecrate and middle of arcane beams)
+		// Target OPTIONS
+        static int MobScanDistance = 50; // scan radius for regular mobs (maximum 100 or about two screens)
+		const int attackDistance = 10; // Set how far back we attack from (10 = Melee | 50 = Ranged)
+		static int NumofAttacksTillChangeTarget = 3; // Times to cast attack spells before choosing the closest target again (helps to not be stuck)
+		// Focus Target OPTIONS
+		static bool FocusTreasureGoblin = true; // True = focus attacking Treasure Goblin until dead
+		static bool FocusMobSummoner = false; // True = focus attacking any mob summoners until dead
+		static bool FocusBloodClanSpearman = false; // True = focus the Blood Clan Spearman until dead
+		static bool FocusFallenManiac = false; // True = focus attacking the Fallen Maniac (exploding bastards) until dead 
+		static bool FocusHearldofPestilence = false; // True == focus attacking the Hearald of Pestilence until dead (poison underground guys)	
+		/*
+			SPELL OPTIONS
+		*/
+		// Spell Casting Speed OPTION
+		static int skillInterval = 150; // Set how long we should wait in ms, after casting a spell (lower the number the faster we cast spells (too fast causes issues)
 		// Teleport OPTIONS
 		static int TeleportArcanePowerAmount = 110; // Set this to the amount of Arcane Power you must have before using Teleport
 		// Spectral Blade OPTIONS
@@ -78,31 +118,31 @@ namespace Astronaut.Scripts.Wizard
 		static int MeteorArcanePowerAmount = 50; // Set this to the amount of Arcane Power you must have before you will cast Meteor
 		// Diamond Skin OPTIONS
 		static int DiamondSkinDistance = 30; // Set this to the distance that the current target must be before using Diamond Skin
+		/*
+			SPELL TIMER OPTIONS
+		*/
+        static CWSpellTimer familiarTimer = new CWSpellTimer(5 * 60 * 1000); // This controls how often we re-cast familiar (default is 5 minutes)
+        static CWSpellTimer MagicWeaponTimer = new CWSpellTimer(5 * 60 * 1000); // This controls how often we re-cast Magic Weapon (default is 5 minutes)
+		/*
+			MISC TIMERS (best not to change unless you know what they do
+		*/
+        static CWSpellTimer moveBackTimer = new CWSpellTimer(2 * 1000); // This is used for avoiding AoE. Meaning you will only run away from AoE every 2 seconds. You can lower this if you want it to run away more often.
+		static CWSpellTimer lootcheckTimer = new CWSpellTimer(2 * 1000); // DO NOT CHANGE (D3TNT has a built in timer of 2 seconds already so changing this would only make you lose items)
+		static CWSpellTimer checkBuffTimer = new CWSpellTimer(1 * 1000, false); // This is used to control how often we check if any of our buffs need re-buffing. (default is every 1 second)
+        static CWSpellTimer checkSafeSpotTimer = new CWSpellTimer(1 * 1000); // Checking for safe spot timer (default 1 sec)
+		
+		
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------
+		// ------------------------- DO NOT CHANGE ANYTHING BELOW UNLESS YOU REALLY KNOW WHAT YOU ARE DOING ---------------------------------------------------
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------		
 		
 		/* 
-			GENERAL OPTIONS
-		*/
-		// Potion OPTIONS
-		static int hpPct_UsePotion = 50; // The HP % to use a potion on
-		// Health Globe OPTIONS
-		static int hpPct_HealthGlobe = 60; // The HP % to search for a health globe.
-		static int PowerHungry_HealthGlobe = 40; // If you use Power Hungry passive skill, set the Arcane Power level you want to search for a health globe.
-		// AOE OPTIONS
-		static bool AvoidAoE = true; // try to avoid AoE (desecrate and middle of arcane beams)
-		// Target OPTIONS
-        static int MobScanDistance = 50; // scan radius for regular mobs (maximum 100 or about two screens)
-		const int attackDistance = 10; // Set how far back we attack from
-		static bool FocusPackLeader = false; // True = focus target elite pack leader until dead
-		static bool FocusTreasureGoblin = true;	// True = focus attacking Treasure Goblin until dead
-		static bool FocusMobSummoner = true; // True = focus attacking any mob summoners until dead		
-		/* 
-			ADVANCED SETTINGS 
+			do not change these unless you know what you are doing!!!
 		*/
 		static Thread keepSpellThread;
         static Vector3D safeSpot = null, oldSafeSpot = null;
-		const int skillInterval = 150; 				// Set how long we should wait after casting a spell	
-		static bool isPowerHungry = false;
-		static int outputMode = 1;
         const int HydraNumber = 1;
 		public int oldTargetHP = 0;
 		public int numofAttacks = 0;
@@ -111,16 +151,7 @@ namespace Astronaut.Scripts.Wizard
         static Dictionary<string, int> abilityInfoDic = new Dictionary<string, int>();
 		#endregion
         public static bool inited = false;
-		/*
-			TIMERS
-		*/
-        static CWSpellTimer moveBackTimer = new CWSpellTimer(3 * 1000);
-		static CWSpellTimer lootcheckTimer = new CWSpellTimer(2 * 1000);
-		static CWSpellTimer checkBuffTimer = new CWSpellTimer(1 * 1000, false);
-		static CWSpellTimer checkInGameTimer = new CWSpellTimer(1 * 1000);
-        static CWSpellTimer checkSafeSpotTimer = new CWSpellTimer(1 * 1000); // Checking for safe spot timer (default 1 sec)
-        static CWSpellTimer familiarTimer = new CWSpellTimer(5 * 60 * 1000);
-        static CWSpellTimer MagicWeaponTimer = new CWSpellTimer(5 * 60 * 1000);
+
 		
         public CombatState()
         {
@@ -368,28 +399,46 @@ namespace Astronaut.Scripts.Wizard
                         closestMobDistance = mob.DistanceFromPlayer;
                         closestMob = mob;
                     }
-					//
+					// Focus Treasure Seeker
 					if ((mob.ID == 5985 || mob.ID == 5984 || mob.ID == 5985 || mob.ID == 5987 || mob.ID == 5988) && FocusTreasureGoblin)
 					{
-						if (outputMode > 0)
-						D3Control.output("Found Treasure Goblin (ID: " + mob.ID + " Dist: " + (int)mob.DistanceFromPlayer+")");
-                        D3Control.TargetManager.SetAttackTarget(mob);
-                        return true;					
+						if (outputMode >= 1)
+							D3Control.output("Chasing Down Treasure Goblin.. Dist:" + (int)mob.DistanceFromPlayer);
+						D3Control.TargetManager.SetAttackTarget(mob);
+						return true;				
 					}
-					if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100) && FocusMobSummoner)
+					// Focus Mob Summoner
+					if ((mob.ID == 5388 || mob.ID == 5387 || mob.ID == 4100 || mob.ID == 365 || mob.ID == 4099) && FocusMobSummoner && mob.DistanceFromPlayer <= 60)
 					{
-						if (outputMode > 0)
-						D3Control.output("Found Mob Summoner ID: "+mob.ID+" Dist: "+(int)mob.DistanceFromPlayer+")");
-                        D3Control.TargetManager.SetAttackTarget(mob);
-                        return true;
+						if (outputMode >= 1)
+							D3Control.output("Chasing Down Mob Summoner.. Dist: "+(int)mob.DistanceFromPlayer);
+						D3Control.TargetManager.SetAttackTarget(mob);
+						return true;
 					}
-                    if ((mob.MLevel == 2) && FocusPackLeader)
-                    {
-						if (outputMode > 0)
-						D3Control.output("Found Pack Leader ID: "+mob.ID+" Dist: "+(int)mob.DistanceFromPlayer+")");
-                        D3Control.TargetManager.SetAttackTarget(mob);
-                        return true;
-                    }
+					// Focus Blood Clan Spearman
+					if (mob.ID == 4299 && FocusBloodClanSpearman && mob.DistanceFromPlayer <= 60)
+					{
+						if (outputMode >= 1)
+							D3Control.output("Chasing Down Blood Clan Spearman.. Dist: "+(int)mob.DistanceFromPlayer);
+						D3Control.TargetManager.SetAttackTarget(mob);
+						return true;
+					}
+					// Focus Fallen Maniac
+					if (mob.ID == 4095 && FocusFallenManiac && mob.DistanceFromPlayer <= 60)
+					{
+						if (outputMode >= 1)
+							D3Control.output("Chasing Down Fallen Maniac.. Dist: "+(int)mob.DistanceFromPlayer);
+						D3Control.TargetManager.SetAttackTarget(mob);
+						return true;
+					}
+					// Focus Hearld of Pestilence
+					if (mob.ID == 4738 && FocusHearldofPestilence && mob.DistanceFromPlayer <= 60)
+					{
+						if (outputMode >= 1)
+							D3Control.output("Chasing Down Hearld of Pestilence.. Dist: "+(int)mob.DistanceFromPlayer);
+						D3Control.TargetManager.SetAttackTarget(mob);
+						return true;
+					}
                 }
             }
 			// Make sure there is one set
@@ -509,21 +558,25 @@ namespace Astronaut.Scripts.Wizard
 				Thread.Sleep(skillInterval);
 				return true;
 			}
+			// Spectral Blade
             if (target.DistanceFromPlayer <= SpectralBladeDistance && CastWizardSpell("Spectral Blade", target.Location))
             {
 				Thread.Sleep(skillInterval);
+				numofAttacks = numofAttacks+1;
 				return true;
             }
 			// Shock Pulse
             if (target.DistanceFromPlayer <= ShockPulseDistance && CastWizardSpell("Shock Pulse", target.Location))
             {
 				Thread.Sleep(skillInterval);
+				numofAttacks = numofAttacks+1;
 				return true;
             }
             // Electrocute
 			if (target.DistanceFromPlayer <= ElectrocuteDistance && CastWizardSpell("Electrocute", target.Location))
             {
 				Thread.Sleep(skillInterval);
+				numofAttacks = numofAttacks+1;
 				return true;
             }
             //
@@ -547,6 +600,7 @@ namespace Astronaut.Scripts.Wizard
 				{
 					D3Control.output("Arcane Orb");
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -558,6 +612,7 @@ namespace Astronaut.Scripts.Wizard
 				{
 					D3Control.output("Ray of Frost");
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -569,6 +624,7 @@ namespace Astronaut.Scripts.Wizard
 				{
 					D3Control.output("Arcane Torrent");
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -580,6 +636,7 @@ namespace Astronaut.Scripts.Wizard
 				{
 					D3Control.output("Disintegrate");
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -591,6 +648,7 @@ namespace Astronaut.Scripts.Wizard
 				{
 					D3Control.output("Magic Missile");
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -614,6 +672,7 @@ namespace Astronaut.Scripts.Wizard
 				{
 					CastWizardSpell("Wave of Force", D3Control.Player.Location);
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -626,6 +685,7 @@ namespace Astronaut.Scripts.Wizard
 					if (CastWizardSpell("Explosive Blast", D3Control.Player.Location))
 					{
 						Thread.Sleep(skillInterval);
+						numofAttacks = numofAttacks+1;
 						return true;
 					}
 				}
@@ -641,6 +701,7 @@ namespace Astronaut.Scripts.Wizard
 					if (CastWizardSpell("Frost Nova", D3Control.Player.Location))
 					{
 						Thread.Sleep(skillInterval);
+						numofAttacks = numofAttacks+1;
 						return true;
 					}
 				}
@@ -651,6 +712,7 @@ namespace Astronaut.Scripts.Wizard
 					if (CastWizardSpell("Frost Nova", D3Control.Player.Location))
 					{
 						Thread.Sleep(skillInterval);
+						numofAttacks = numofAttacks+1;
 						return true;
 					}
 				}
@@ -674,6 +736,7 @@ namespace Astronaut.Scripts.Wizard
 				if (CastWizardSpell("Energy Twister", target.Location))
 				{
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -684,6 +747,7 @@ namespace Astronaut.Scripts.Wizard
 				{
 					blizzardTimer.Reset();
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -693,6 +757,7 @@ namespace Astronaut.Scripts.Wizard
 				if (CastWizardSpell("Meteor", target.Location))
 				{
 					Thread.Sleep(skillInterval);
+					numofAttacks = numofAttacks+1;
 					return true;
 				}
 			}
@@ -716,6 +781,7 @@ namespace Astronaut.Scripts.Wizard
 						if (CastWizardSpell("Slow Time", D3Control.Player.Location))
 						{
 							Thread.Sleep(skillInterval);
+							numofAttacks = numofAttacks+1;
 							return true;
 						}
 					}
@@ -730,6 +796,7 @@ namespace Astronaut.Scripts.Wizard
 						{
 							CastWizardSpell("Slow Time", D3Control.Player.Location);
 							Thread.Sleep(skillInterval);
+							numofAttacks = numofAttacks+1;
 							return true;
 						}
 					}
@@ -744,6 +811,7 @@ namespace Astronaut.Scripts.Wizard
 					if (CastWizardSpell("Diamond Skin", D3Control.Player.Location))
 					{
 						Thread.Sleep(skillInterval);
+						numofAttacks = numofAttacks+1;
 						return true;
 					}
 				}
@@ -864,6 +932,12 @@ namespace Astronaut.Scripts.Wizard
 			// If we are close enough to attack or if we are not moving when the moving thread is active and the target is still alive ATTACK!
             if (isWithinAttackDistance(target) || (D3Control.isMovingWorking() && !D3Control.Player.isMovingForward && !target.IsDead))
             {
+				// If we are above the set max number of attacks preformed, find closest target again and reset counter
+				if (numofAttacks >= NumofAttacksTillChangeTarget)
+				{
+					pickTarget();
+					numofAttacks = 0;
+				}
 				// Get the target's HP before we start trying to kill it. This is used later to check if we didn't hurt the target and need to get unstuck or change targets
 				oldTargetHP = (int)target.Hp;
 				// Use the attack spells
