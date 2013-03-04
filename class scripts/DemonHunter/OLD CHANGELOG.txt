@@ -1,0 +1,43 @@
+8/17
+- Vault works if there is more than 1 enemy within 20 radius. (instead of 10 like before on stock)
+- Smoke Screen and Shadow Power works if you go under 60% HP. (Before Shadow Power did not work at all on stock)
+- Preparation fires off every time it needs to be right before you start attacking. (Did not fire off on stock)
+- I have gotten the DH to kite FAR more than the stock script does. (Did not kite nearly as much on stock)
+
+9/8
+- Moves around faster, Gets stuck less
+- Now handles runs from any debuff that does dmg to you (AOE)!
+- Got Grenades and Multishot to fire more often
+- Got DH to move around a LITTLE bit faster
+- Got Preparation to cast at better times (Now it casts if you are under 90%)
+- DH now tries Vault to the Health Globe if the spell is available.
+
+9/13
+- All spells should now cast correctly. (Tested Hungering Arrow, Multishot, Grenades, and much more)
+- Should get stuck less, move around a little better
+
+9/20
+- Sentry, Preparation, Shadow Power and others work again
+- All spells should now cast correctly. (Tested Hungering Arrow, Multishot, Grenades, and much more)
+- Should get stuck less, move around a little better
+
+10/8 - 11/14
+- AoE Avoiding every 200ms outside and inside combat (instead of just inside combat and only between kills)
+- Checks for loot every 200ms outside combat (did not work nearly as good before, now it is in a thread)
+- Better Potion and Health Globe use
+- Should attack targets a little better now
+- Tested Rapid Fire to work
+- Tons of changes to moving to target (not attacking through things as much and such)
+- Tons of settings added and moved around in script ( be sure to open the script with a text editor )
+- Many vault related options now available
+
+11/30
+- Updated to work for D3TNT 1.0.2.1006
+- Added latest API code that came with 1.0.2.1006
+- Fixed up number of things and done a near complete re-write.
+
+12/8
+- Removed threading (prevents crashes and speeds up the script)
+- Moved AOE checking to between attacks and to before looking for the next target to attack
+- Added a check to see if we are stuck in a pack of mobs and set to use all Primary and Secondary Spells needed to get out of it.
+- Should be stalling and doing nothing a lot less
